@@ -60,7 +60,7 @@ unset($service);
                 Trusted Construction Partner
             </span>
             <h1>Built for Business,<br><span class="highlight">Powered by Supply</span></h1>
-            <p>Trusted one-stop shop for a wide array of builder and supply needs.</p>
+            <p>Complete construction and industrial solutions for residential, commercial, and industrial projects.</p>
             <div class="hero-buttons">
                 <a href="#services" class="btn-primary-main">
                     <i class="fas fa-cogs"></i> Our Services
@@ -70,7 +70,6 @@ unset($service);
                 </a>
             </div>
         </div>
-
     </section>
 
     <!-- ── Stats Bar ── -->
@@ -107,7 +106,7 @@ unset($service);
             </div>
             <div class="about-content reveal">
                 <p style="text-align:center;font-size:1.08rem;color:var(--text-light);max-width:680px;margin:0 auto;">
-                    Trusted one-stop shop for a wide array of builder and supply needs. With a strong commitment to high-quality workmanship and efficient progress, we take pride in being your reliable contractor.
+                    NAM Builders and Supply Corp is a leading construction and industrial services company providing complete solutions for residential, commercial, and industrial projects. We specialize in general construction, renovation, electrical systems, fire protection, steel fabrication, office fit-outs, and building maintenance.
                 </p>
             </div>
             <div class="features-grid">
