@@ -74,8 +74,8 @@
     }
 
 
-/* ═══════════════════════════════════════════════
-    5. SERVICE MODAL
+    /* ═══════════════════════════════════════════════
+       5. SERVICE MODAL
     ═══════════════════════════════════════════════ */
     var svcModal   = document.getElementById('svcModal');
     var slidesWrap = document.getElementById('svcmSlides');
@@ -84,27 +84,20 @@
     var descEl     = document.getElementById('svcmDesc');
     var cur = 0, tot = 0, tmr = null;
 
-    /* TARGET UPDATED CARD CLASS */
     document.querySelectorAll('#services .service-modern-card').forEach(function (card) {
-
         card.addEventListener('click', function (e) {
-
-            // Prevent anchor default behavior
             if (e.target.closest('.service-read-more')) {
                 e.preventDefault();
             }
-
             openSvcModal(
                 card.getAttribute('data-name'),
                 card.getAttribute('data-desc'),
                 JSON.parse(card.getAttribute('data-imgs') || '[]')
             );
         });
-
-        card.addEventListener('keypress', function (e) { 
-            if (e.key === 'Enter') card.click(); 
+        card.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') card.click();
         });
-
     });
 
     function openSvcModal(name, desc, images) {
@@ -131,8 +124,8 @@
                     var d = document.createElement('button');
                     d.className = 'svcm-dot' + (i === 0 ? ' on' : '');
                     d.setAttribute('aria-label', 'Image ' + (i + 1));
-                    (function (idx) { 
-                        d.addEventListener('click', function () { svcGoTo(idx); }); 
+                    (function (idx) {
+                        d.addEventListener('click', function () { svcGoTo(idx); });
                     }(i));
                     dotsWrap.appendChild(d);
                 }
@@ -144,8 +137,8 @@
         clearInterval(tmr);
 
         if (tot > 1) {
-            tmr = setInterval(function () { 
-                svcGoTo((cur + 1) % tot); 
+            tmr = setInterval(function () {
+                svcGoTo((cur + 1) % tot);
             }, 3000);
         }
     }
@@ -154,12 +147,9 @@
         var ss = slidesWrap.querySelectorAll('.svcm-slide');
         var ds = dotsWrap.querySelectorAll('.svcm-dot');
         if (!ss.length) return;
-
         ss[cur].classList.remove('on');
         if (ds[cur]) ds[cur].classList.remove('on');
-
         cur = idx;
-
         ss[cur].classList.add('on');
         if (ds[cur]) ds[cur].classList.add('on');
     }
@@ -171,13 +161,100 @@
     }
 
     document.getElementById('svcmCloseBtn').addEventListener('click', closeSvcModal);
-    document.getElementById('svcmQuoteBtn').addEventListener('click', closeSvcModal);
-    svcModal.addEventListener('click', function (e) { 
-        if (e.target === svcModal) closeSvcModal(); 
+
+    // "Inquire Now" inside service modal → open contact modal
+    document.getElementById('svcmQuoteBtn').addEventListener('click', function () {
+        closeSvcModal();
+        openContactModal();
     });
 
+    svcModal.addEventListener('click', function (e) {
+        if (e.target === svcModal) closeSvcModal();
+    });
+
+
     /* ═══════════════════════════════════════════════
-       6. VERIFICATION MODAL
+       6. CONTACT MODAL
+    ═══════════════════════════════════════════════ */
+    var contactModal = document.getElementById('contactModal');
+
+    function openContactModal() {
+        contactModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // small delay so animation fires after display
+        requestAnimationFrame(function () {
+            var firstInput = contactModal.querySelector('input');
+            if (firstInput) firstInput.focus();
+        });
+    }
+
+    function closeContactModal() {
+        contactModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Nav button
+    var navContactBtn = document.getElementById('navContactBtn');
+    if (navContactBtn) {
+        navContactBtn.addEventListener('click', openContactModal);
+    }
+
+    // Hero "Inquire Now" button
+    var heroContactBtn = document.getElementById('heroContactBtn');
+    if (heroContactBtn) {
+        heroContactBtn.addEventListener('click', openContactModal);
+    }
+
+    // Footer contact link
+    var footerContactLink = document.getElementById('footerContactLink');
+    if (footerContactLink) {
+        footerContactLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            openContactModal();
+        });
+    }
+
+    // Close button
+    document.getElementById('contactModalCloseBtn').addEventListener('click', closeContactModal);
+
+    // Click outside to close
+    contactModal.addEventListener('click', function (e) {
+        if (e.target === contactModal) closeContactModal();
+    });
+
+
+    /* ═══════════════════════════════════════════════
+       VMO ACCORDION
+    ═══════════════════════════════════════════════ */
+    (function () {
+        var vmoOrder = ['vision', 'mission', 'objectives'];
+        var triggers = document.querySelectorAll('.vmo-trigger');
+        var panels   = document.querySelectorAll('.vmo-panel');
+
+        if (!triggers.length || !panels.length) return;
+
+        function openVmo(key) {
+            if (vmoOrder.indexOf(key) === -1) return;
+            triggers.forEach(function (t) {
+                t.classList.toggle('active', t.getAttribute('data-vmo') === key);
+            });
+            panels.forEach(function (p) {
+                p.classList.toggle('open', p.id === 'vmo-' + key);
+            });
+        }
+
+        triggers.forEach(function (t) {
+            t.addEventListener('click', function () {
+                openVmo(t.getAttribute('data-vmo'));
+            });
+        });
+
+        openVmo('vision');
+    }());
+
+
+    /* ═══════════════════════════════════════════════
+       7. VERIFICATION MODAL
     ═══════════════════════════════════════════════ */
     var verifyModal    = document.getElementById('verifyModal');
     var vmEmailDisplay = document.getElementById('vmEmailDisplay');
@@ -195,7 +272,6 @@
     var resendInterval    = null;
     var countdownSeconds  = 0;
 
-    /* digit inputs */
     digits.forEach(function (inp, i) {
         inp.addEventListener('input', function () {
             inp.value = inp.value.replace(/[^0-9]/g, '').slice(-1);
@@ -230,7 +306,7 @@
         });
     });
 
-    function getCode()        { return digits.map(function (d) { return d.value; }).join(''); }
+    function getCode()         { return digits.map(function (d) { return d.value; }).join(''); }
     function updateVerifyBtn() { vmVerifyBtn.disabled = (getCode().length !== 6 || countdownSeconds <= 0); }
 
     function clearDigits() {
@@ -310,47 +386,14 @@
 
     document.getElementById('vmCloseBtn').addEventListener('click', closeVerifyModal);
     verifyModal.addEventListener('click', function (e) { if (e.target === verifyModal) closeVerifyModal(); });
+
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { closeVerifyModal(); closeSvcModal(); }
-    });
-
-    /* ════════════════════════════════════════════════════════
-    VMO ACCORDION — Click interaction only
-    Add this block inside the IIFE in carousel.js, or as a
-    separate <script> at the bottom of index.php
-    ════════════════════════════════════════════════════════ */
-
-    (function () {
-
-        var vmoOrder = ['vision', 'mission', 'objectives'];
-        var triggers = document.querySelectorAll('.vmo-trigger');
-        var panels   = document.querySelectorAll('.vmo-panel');
-
-        if (!triggers.length || !panels.length) return;
-
-        /* ── Core: open a panel by key ─────────────────────── */
-        function openVmo(key) {
-            if (vmoOrder.indexOf(key) === -1) return;
-
-            triggers.forEach(function (t) {
-                t.classList.toggle('active', t.getAttribute('data-vmo') === key);
-            });
-            panels.forEach(function (p) {
-                p.classList.toggle('open', p.id === 'vmo-' + key);
-            });
+        if (e.key === 'Escape') {
+            closeVerifyModal();
+            closeSvcModal();
+            closeContactModal();
         }
-
-        /* ── Click on trigger icons ─────────────────────────── */
-        triggers.forEach(function (t) {
-            t.addEventListener('click', function () {
-                openVmo(t.getAttribute('data-vmo'));
-            });
-        });
-
-        /* Open Vision by default on load */
-        openVmo('vision');
-
-    }());
+    });
 
     function sendOTP(email, onSuccess, onError) {
         var fd = new FormData();
@@ -445,14 +488,20 @@
             .then(function (data) {
                 if (data.success) {
                     closeVerifyModal();
+                    closeContactModal();
                     contactForm.reset();
 
+                    // Show a brief success toast / banner
                     var banner = document.getElementById('contactSuccessBanner');
                     var msgEl  = document.getElementById('contactSuccessMsg');
                     msgEl.textContent = data.message;
                     banner.classList.add('show');
-                    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    setTimeout(function () { banner.classList.remove('show'); }, 8000);
+                    // Re-open modal to show banner then auto-close
+                    openContactModal();
+                    setTimeout(function () {
+                        banner.classList.remove('show');
+                        closeContactModal();
+                    }, 5000);
                 } else {
                     shakeDigits();
                     showVmAlert(data.message, 'error');
@@ -470,7 +519,7 @@
 
 
     /* ═══════════════════════════════════════════════
-       7. AUTO-DISMISS BOOTSTRAP ALERTS
+       8. AUTO-DISMISS BOOTSTRAP ALERTS
     ═══════════════════════════════════════════════ */
     document.querySelectorAll('.alert').forEach(function (alert) {
         setTimeout(function () {

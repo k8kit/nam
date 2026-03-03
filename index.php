@@ -45,7 +45,11 @@ unset($service);
                         <li class="nav-item"><a class="nav-link" href="#about"    data-section="about">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="#services" data-section="services">Services</a></li>
                         <li class="nav-item"><a class="nav-link" href="#clients"  data-section="clients">Clients</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#contact"  data-section="contact">Contact</a></li>
+                        <li class="nav-item ms-lg-2">
+                            <button class="btn-contact-nav" id="navContactBtn" type="button">
+                                <i class="fas fa-paper-plane"></i> Contact Us
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -65,9 +69,9 @@ unset($service);
                 <a href="#services" class="btn-primary-main">
                     <i class="fas fa-cogs"></i> Our Services
                 </a>
-                <a href="#contact" class="btn-secondary-main">
+                <button type="button" class="btn-secondary-main" id="heroContactBtn">
                     <i class="fas fa-paper-plane"></i> Inquire Now
-                </a>
+                </button>
             </div>
         </div>
         <div class="hero-scroll-hint">
@@ -100,41 +104,29 @@ unset($service);
         </div>
     </div>
 
-<!-- ── About ── -->
+    <!-- ── About ── -->
     <section class="light-bg" id="about">
         <div class="container-lg">
-
-            <!-- Two-column layout: image left, text right -->
             <div class="about-two-col">
-
-                <!-- Left: image -->
                 <div class="about-img-col reveal">
                     <div class="about-img-wrap">
                         <img src="css/assets/about-bg.jpg"
                              alt="NAM Builders team"
                              onerror="this.src='https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=700&q=80'">
-                        <!-- floating badge -->
                         <div class="about-badge">
                             <span class="about-badge-num">15<sup>+</sup></span>
                             <span class="about-badge-label">Years of<br>Excellence</span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Right: heading + description + VMO icons -->
                 <div class="about-text-col reveal reveal-delay-1">
                     <span class="section-tag">Who We Are</span>
                     <h2 class="about-heading">About Us</h2>
                     <div class="about-title-rule"></div>
-
                     <p class="about-intro">
                         NAM Builders and Supply Corp is a leading construction and industrial services company providing complete solutions for residential, commercial, and industrial projects. We specialize in general construction, renovation, electrical systems, fire protection, steel fabrication, office fit-outs, and building maintenance.
                     </p>
-
-
                     <div class="about-rule"></div>
-
-                    <!-- VMO trigger icons -->
                     <div class="vmo-triggers">
                         <button class="vmo-trigger active" data-vmo="vision">
                             <div class="vmo-trigger-icon"><i class="fas fa-eye"></i></div>
@@ -151,8 +143,6 @@ unset($service);
                             <span>Objectives</span>
                         </button>
                     </div>
-
-                    <!-- VMO content accordion -->
                     <div class="vmo-accordion">
                         <div class="vmo-panel vmo-vision open" id="vmo-vision">
                             <div class="vmo-panel-inner">
@@ -173,13 +163,12 @@ unset($service);
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </section>
-<!-- ── Our Values ── -->
+
+    <!-- ── Our Values ── -->
     <section id="values">
         <div class="container-lg">
             <div class="section-title reveal">
@@ -187,10 +176,7 @@ unset($service);
                 <h2>Our Values</h2>
                 <p>At NAM Builders and Supply Corp., our commitment is rooted in a set of core values that drive our business.</p>
             </div>
-
             <div class="values-orbit">
-
-                <!-- ROW 1: Left, Top-Center, Right -->
                 <div class="val-item val-left-1 reveal reveal-delay-1">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-graduation-cap"></i></div>
@@ -198,7 +184,6 @@ unset($service);
                         <p>We are committed to advancing our talents and skills to their fullest potential, whether as individuals, professionals, or managers.</p>
                     </div>
                 </div>
-
                 <div class="val-item val-top reveal reveal-delay-2">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-star"></i></div>
@@ -206,7 +191,6 @@ unset($service);
                         <p>We uphold the highest standards of professional excellence, ensuring the quality of our work aligns with the project's objectives.</p>
                     </div>
                 </div>
-
                 <div class="val-item val-right-1 reveal reveal-delay-1">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-smile"></i></div>
@@ -214,8 +198,6 @@ unset($service);
                         <p>We go above and beyond to exceed the expectations of our customers, both internally and externally, by proactively anticipating, understanding, and responding to their needs.</p>
                     </div>
                 </div>
-
-                <!-- ROW 2: Left, CENTER LOGO, Right -->
                 <div class="val-item val-left-2 reveal reveal-delay-1">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-lightbulb"></i></div>
@@ -223,7 +205,6 @@ unset($service);
                         <p>We encourage creativity, flexibility, and innovative thinking in our approach to challenges and opportunities.</p>
                     </div>
                 </div>
-
                 <div class="val-center reveal reveal-delay-2">
                     <div class="val-center-ring">
                         <div class="val-center-inner">
@@ -238,7 +219,6 @@ unset($service);
                         </div>
                     </div>
                 </div>
-
                 <div class="val-item val-right-2 reveal reveal-delay-1">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-comments"></i></div>
@@ -246,8 +226,6 @@ unset($service);
                         <p>We believe in transparent and honest communication, providing information openly and candidly.</p>
                     </div>
                 </div>
-
-                <!-- ROW 3: Left, Bottom-Center, Right -->
                 <div class="val-item val-left-3 reveal reveal-delay-1">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-sun"></i></div>
@@ -255,7 +233,6 @@ unset($service);
                         <p>We approach our work with a positive and enthusiastic spirit, bringing vibrancy to every task.</p>
                     </div>
                 </div>
-
                 <div class="val-item val-bottom reveal reveal-delay-2">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-users"></i></div>
@@ -263,7 +240,6 @@ unset($service);
                         <p>We foster a collaborative environment where each team member focuses on a common goal, working together to achieve success.</p>
                     </div>
                 </div>
-
                 <div class="val-item val-right-3 reveal reveal-delay-1">
                     <div class="val-bubble">
                         <div class="val-icon"><i class="fas fa-hands"></i></div>
@@ -271,8 +247,7 @@ unset($service);
                         <p>We demonstrate respect for others through our actions, treating everyone with consideration and professionalism.</p>
                     </div>
                 </div>
-
-            </div><!-- /.values-orbit -->
+            </div>
         </div>
     </section>
 
@@ -290,23 +265,18 @@ unset($service);
                         $first_img = !empty($sv['images']) 
                             ? UPLOADS_URL . $sv['images'][0]['image_path'] 
                             : '';
-
                         $all_images = [];
                         if (!empty($sv['images'])) {
                             foreach ($sv['images'] as $img) {
                                 $all_images[] = UPLOADS_URL . $img['image_path'];
                             }
                         }
-
                         $delay = ($idx % 3);
                     ?>
                     <div class="service-modern-card reveal reveal-delay-<?php echo $delay; ?>"
-
                         data-name="<?php echo htmlspecialchars($sv['service_name']); ?>"
                         data-desc="<?php echo htmlspecialchars(strip_tags($sv['description'])); ?>"
                         data-imgs='<?php echo json_encode($all_images); ?>'>
-
-                        <!-- Image -->
                         <div class="service-modern-image">
                             <?php if ($first_img): ?>
                                 <img src="<?php echo $first_img; ?>" 
@@ -318,16 +288,12 @@ unset($service);
                                 </div>
                             <?php endif; ?>
                         </div>
-
-                        <!-- Content -->
                         <div class="service-modern-content">
                             <h4><?php echo htmlspecialchars($sv['service_name']); ?></h4>
-
                             <a href="javascript:void(0);" class="service-read-more">
                                 READ MORE <i class="fas fa-chevron-right"></i>
                             </a>
                         </div>
-
                     </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -348,9 +314,9 @@ unset($service);
                 <div class="svcm-bar"></div>
                 <p  class="svcm-desc"  id="svcmDesc"></p>
                 <div class="svcm-cta">
-                    <a href="#contact" id="svcmQuoteBtn">
+                    <button type="button" id="svcmQuoteBtn" class="btn-primary-main" style="border:none; cursor:pointer;">
                         <i class="fas fa-paper-plane"></i> Inquire Now
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -365,12 +331,9 @@ unset($service);
                 <p>Partnering with industry leaders to deliver excellence.</p>
             </div>
         </div>
-
-        <!-- Full-width marquee strip (intentionally outside container for edge-to-edge) -->
         <div class="clients-marquee-wrap">
             <div class="clients-marquee-track">
                 <?php
-                // Render the list TWICE — translateX(-50%) lands exactly back at start
                 $loop = array_merge($clients, $clients);
                 foreach ($loop as $client):
                 ?>
@@ -391,44 +354,71 @@ unset($service);
         </div>
     </section>
 
-    <!-- ── Contact ── -->
-    <section id="contact">
-        <div class="container-lg">
-            <div class="section-title reveal">
-                <span class="section-tag">Reach Out</span>
-                <h2>Get In Touch</h2>
-                <p>Ready to start your project? Contact us today for a free consultation.</p>
-            </div>
-            <div class="contact-form reveal">
+    <!-- ══════════════════════════════════════════════════════
+         CONTACT MODAL
+    ══════════════════════════════════════════════════════ -->
+    <div id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
+        <div class="cm-box">
 
-                <div id="contactSuccessBanner">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="contactSuccessMsg"></span>
+            <!-- Left decorative panel -->
+            <div class="cm-left">
+                <div class="cm-left-inner">
+                    <div class="cm-left-logo">
+                        <img src="uploads/nam-logo.png" alt="NAM Builders"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="cm-logo-fallback" style="display:none;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                    <h3>Get In Touch</h3>
+                    <p>Ready to start your project? Send us a message and we'll get back to you soon.</p>
+                    <div class="cm-info-list">
+                        <div class="cm-info-item">
+                            <div class="cm-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <span>Your Address Here, Philippines</span>
+                        </div>
+                        <div class="cm-info-item">
+                            <div class="cm-info-icon"><i class="fas fa-phone"></i></div>
+                            <span>+63 9XX XXX XXXX</span>
+                        </div>
+                        <div class="cm-info-item">
+                            <div class="cm-info-icon"><i class="fas fa-envelope"></i></div>
+                            <span>info@nambuilders.com</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <form id="contactForm" novalidate>
-                    <div class="row">
-                        <div class="col-md-6">
+            <!-- Right form panel -->
+            <div class="cm-right">
+                <button class="cm-close" id="contactModalCloseBtn" title="Close">&times;</button>
+
+                <div class="cm-right-inner">
+                    <span class="section-tag">Reach Out</span>
+                    <h2 id="contactModalTitle">Send Us a Message</h2>
+                    <div class="cm-title-rule"></div>
+
+                    <div id="contactSuccessBanner">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="contactSuccessMsg"></span>
+                    </div>
+
+                    <form id="contactForm" novalidate>
+                        <div class="cm-row">
                             <div class="form-group">
                                 <label><i class="fas fa-user"></i> Full Name</label>
                                 <input type="text" name="full_name" id="cf_name" class="form-control" placeholder="Juan dela Cruz" required>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group">
                                 <label><i class="fas fa-envelope"></i> Email</label>
                                 <input type="email" name="email" id="cf_email" class="form-control" placeholder="juan@example.com" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
+                        <div class="cm-row">
                             <div class="form-group">
                                 <label><i class="fas fa-phone"></i> Phone</label>
                                 <input type="tel" name="phone" id="cf_phone" class="form-control" placeholder="+63 9XX XXX XXXX">
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group">
                                 <label><i class="fas fa-cogs"></i> Service Needed</label>
                                 <select name="service_needed" id="cf_service" class="form-control">
@@ -441,18 +431,19 @@ unset($service);
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-comment-dots"></i> Message</label>
-                        <textarea name="message" id="cf_message" class="form-control" placeholder="Tell us about your project..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-submit" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> Send Message
-                    </button>
-                </form>
+                        <div class="form-group">
+                            <label><i class="fas fa-comment-dots"></i> Message</label>
+                            <textarea name="message" id="cf_message" class="form-control" placeholder="Tell us about your project..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
             </div>
+
         </div>
-    </section>
+    </div>
 
     <!-- ── Verification Modal ── -->
     <div id="verifyModal" role="dialog" aria-modal="true" aria-labelledby="vmTitle">
@@ -516,7 +507,7 @@ unset($service);
                         <li><a href="#about"><i class="fas fa-chevron-right"></i> About</a></li>
                         <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
                         <li><a href="#clients"><i class="fas fa-chevron-right"></i> Clients</a></li>
-                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                        <li><a href="javascript:void(0);" id="footerContactLink"><i class="fas fa-chevron-right"></i> Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
