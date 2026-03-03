@@ -74,8 +74,8 @@
     }
 
 
-    /* ═══════════════════════════════════════════════
-       5. SERVICE MODAL
+/* ═══════════════════════════════════════════════
+    5. SERVICE MODAL
     ═══════════════════════════════════════════════ */
     var svcModal   = document.getElementById('svcModal');
     var slidesWrap = document.getElementById('svcmSlides');
@@ -84,15 +84,27 @@
     var descEl     = document.getElementById('svcmDesc');
     var cur = 0, tot = 0, tmr = null;
 
-    document.querySelectorAll('#services .service-card').forEach(function (card) {
-        card.addEventListener('click', function () {
+    /* TARGET UPDATED CARD CLASS */
+    document.querySelectorAll('#services .service-modern-card').forEach(function (card) {
+
+        card.addEventListener('click', function (e) {
+
+            // Prevent anchor default behavior
+            if (e.target.closest('.service-read-more')) {
+                e.preventDefault();
+            }
+
             openSvcModal(
                 card.getAttribute('data-name'),
                 card.getAttribute('data-desc'),
                 JSON.parse(card.getAttribute('data-imgs') || '[]')
             );
         });
-        card.addEventListener('keypress', function (e) { if (e.key === 'Enter') card.click(); });
+
+        card.addEventListener('keypress', function (e) { 
+            if (e.key === 'Enter') card.click(); 
+        });
+
     });
 
     function openSvcModal(name, desc, images) {
@@ -110,7 +122,8 @@
                 var s   = document.createElement('div');
                 s.className = 'svcm-slide' + (i === 0 ? ' on' : '');
                 var img = document.createElement('img');
-                img.src = src; img.alt = name;
+                img.src = src;
+                img.alt = name;
                 s.appendChild(img);
                 slidesWrap.appendChild(s);
 
@@ -118,7 +131,9 @@
                     var d = document.createElement('button');
                     d.className = 'svcm-dot' + (i === 0 ? ' on' : '');
                     d.setAttribute('aria-label', 'Image ' + (i + 1));
-                    (function (idx) { d.addEventListener('click', function () { svcGoTo(idx); }); }(i));
+                    (function (idx) { 
+                        d.addEventListener('click', function () { svcGoTo(idx); }); 
+                    }(i));
                     dotsWrap.appendChild(d);
                 }
             });
@@ -127,16 +142,26 @@
         svcModal.classList.add('open');
         document.body.style.overflow = 'hidden';
         clearInterval(tmr);
-        if (tot > 1) tmr = setInterval(function () { svcGoTo((cur + 1) % tot); }, 3000);
+
+        if (tot > 1) {
+            tmr = setInterval(function () { 
+                svcGoTo((cur + 1) % tot); 
+            }, 3000);
+        }
     }
 
     function svcGoTo(idx) {
         var ss = slidesWrap.querySelectorAll('.svcm-slide');
         var ds = dotsWrap.querySelectorAll('.svcm-dot');
         if (!ss.length) return;
-        ss[cur].classList.remove('on'); if (ds[cur]) ds[cur].classList.remove('on');
+
+        ss[cur].classList.remove('on');
+        if (ds[cur]) ds[cur].classList.remove('on');
+
         cur = idx;
-        ss[cur].classList.add('on');   if (ds[cur]) ds[cur].classList.add('on');
+
+        ss[cur].classList.add('on');
+        if (ds[cur]) ds[cur].classList.add('on');
     }
 
     function closeSvcModal() {
@@ -147,8 +172,9 @@
 
     document.getElementById('svcmCloseBtn').addEventListener('click', closeSvcModal);
     document.getElementById('svcmQuoteBtn').addEventListener('click', closeSvcModal);
-    svcModal.addEventListener('click', function (e) { if (e.target === svcModal) closeSvcModal(); });
-
+    svcModal.addEventListener('click', function (e) { 
+        if (e.target === svcModal) closeSvcModal(); 
+    });
 
     /* ═══════════════════════════════════════════════
        6. VERIFICATION MODAL

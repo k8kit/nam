@@ -66,7 +66,7 @@ unset($service);
                     <i class="fas fa-cogs"></i> Our Services
                 </a>
                 <a href="#contact" class="btn-secondary-main">
-                    <i class="fas fa-paper-plane"></i> Get a Quote
+                    <i class="fas fa-paper-plane"></i> Inquire Now
                 </a>
             </div>
         </div>
@@ -284,34 +284,52 @@ unset($service);
                 <h2>Our Services</h2>
                 <p>Comprehensive solutions tailored to your needs. Click any service to learn more.</p>
             </div>
-            <div class="services-grid">
+            <div class="services-modern-grid">
                 <?php if (!empty($services)): ?>
                     <?php foreach ($services as $idx => $sv):
-                        $imgs_array = array_map(fn($i) => UPLOADS_URL . $i['image_path'], $sv['images']);
-                        $data_imgs  = htmlspecialchars(json_encode($imgs_array), ENT_QUOTES, 'UTF-8');
-                        $data_name  = htmlspecialchars($sv['service_name'], ENT_QUOTES, 'UTF-8');
-                        $data_desc  = htmlspecialchars($sv['description'],  ENT_QUOTES, 'UTF-8');
-                        $first_img  = !empty($sv['images']) ? UPLOADS_URL . $sv['images'][0]['image_path'] : '';
-                        $delay      = ($idx % 4);
+                        $first_img = !empty($sv['images']) 
+                            ? UPLOADS_URL . $sv['images'][0]['image_path'] 
+                            : '';
+
+                        $all_images = [];
+                        if (!empty($sv['images'])) {
+                            foreach ($sv['images'] as $img) {
+                                $all_images[] = UPLOADS_URL . $img['image_path'];
+                            }
+                        }
+
+                        $delay = ($idx % 3);
                     ?>
-                    <div class="service-card reveal reveal-delay-<?php echo $delay; ?>"
-                         role="button" tabindex="0"
-                         data-name="<?php echo $data_name; ?>"
-                         data-desc="<?php echo $data_desc; ?>"
-                         data-imgs="<?php echo $data_imgs; ?>">
-                        <div class="service-image">
+                    <div class="service-modern-card reveal reveal-delay-<?php echo $delay; ?>"
+
+                        data-name="<?php echo htmlspecialchars($sv['service_name']); ?>"
+                        data-desc="<?php echo htmlspecialchars(strip_tags($sv['description'])); ?>"
+                        data-imgs='<?php echo json_encode($all_images); ?>'>
+
+                        <!-- Image -->
+                        <div class="service-modern-image">
                             <?php if ($first_img): ?>
-                                <img src="<?php echo $first_img; ?>" alt="<?php echo $data_name; ?>" loading="lazy">
+                                <img src="<?php echo $first_img; ?>" 
+                                    alt="<?php echo htmlspecialchars($sv['service_name']); ?>" 
+                                    loading="lazy">
                             <?php else: ?>
-                                <div class="svc-img-placeholder"><i class="fas fa-hard-hat"></i></div>
+                                <div class="service-img-placeholder">
+                                    <i class="fas fa-hard-hat"></i>
+                                </div>
                             <?php endif; ?>
-                            <div class="svc-overlay"><i class="fas fa-search-plus"></i></div>
                         </div>
-                        <div class="svc-name-bar"><?php echo htmlspecialchars($sv['service_name']); ?></div>
+
+                        <!-- Content -->
+                        <div class="service-modern-content">
+                            <h4><?php echo htmlspecialchars($sv['service_name']); ?></h4>
+
+                            <a href="javascript:void(0);" class="service-read-more">
+                                READ MORE <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+
                     </div>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <p style="grid-column:1/-1;text-align:center;color:var(--text-light);">No services available.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -331,7 +349,7 @@ unset($service);
                 <p  class="svcm-desc"  id="svcmDesc"></p>
                 <div class="svcm-cta">
                     <a href="#contact" id="svcmQuoteBtn">
-                        <i class="fas fa-paper-plane"></i> Get a Quote
+                        <i class="fas fa-paper-plane"></i> Inquire Now
                     </a>
                 </div>
             </div>

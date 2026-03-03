@@ -33,12 +33,12 @@ if ($result) {
 <body>
     <div style="display: flex; height: 100vh;">
         <!-- Sidebar -->
-        <div class="admin-sidebar" style="width: 250px; background-color: var(--secondary-color); color: white; overflow-y: auto;">
+        <div class="admin-sidebar" style="width: 250px; background-color: var(--primary-color); color: white; overflow-y: auto;">
             <div style="padding: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h5 style="margin: 0; color: white;">
-                    <i class="fas fa-building"></i> NAM Builders
+                <h5 style="margin: 0; color: var(--light-bg)">
+                    </i> NAM Builders and Supply Corps.
                 </h5>
-                <small style="color: rgba(255,255,255,0.6);">Admin Panel</small>
+                <small style="color: var(--light-bg);">Admin Panel</small>
             </div>
 
             <nav style="padding: 1rem 0;">
