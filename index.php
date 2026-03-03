@@ -44,7 +44,7 @@ unset($service);
                         <li class="nav-item"><a class="nav-link" href="#home"     data-section="home">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="#about"    data-section="about">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="#services" data-section="services">Services</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#clients"  data-section="clients">Clients</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#team"  data-section="team">Team</a></li>
                         <li class="nav-item ms-lg-2">
                             <button class="btn-contact-nav" id="navContactBtn" type="button">
                                 <i class="fas fa-paper-plane"></i> Contact Us
@@ -80,29 +80,36 @@ unset($service);
         </div>
     </section>
 
-    <!-- ── Stats Bar ── -->
-    <div class="stats-bar" id="stats">
+    <section class="clients-section" id="clients">
         <div class="container-lg">
-            <div class="stats-grid">
-                <div class="stat-item reveal">
-                    <span class="stat-number"><span class="counter" data-target="150">0</span>+</span>
-                    <span class="stat-label">Projects Completed</span>
-                </div>
-                <div class="stat-item reveal reveal-delay-1">
-                    <span class="stat-number"><span class="counter" data-target="50">0</span>+</span>
-                    <span class="stat-label">Happy Clients</span>
-                </div>
-                <div class="stat-item reveal reveal-delay-2">
-                    <span class="stat-number"><span class="counter" data-target="15">0</span>+</span>
-                    <span class="stat-label">Years Experience</span>
-                </div>
-                <div class="stat-item reveal reveal-delay-3">
-                    <span class="stat-number"><span class="counter" data-target="8">0</span></span>
-                    <span class="stat-label">Service Categories</span>
-                </div>
+            <div class="section-title reveal">
+                <span class="section-tag">Who We Work With</span>
+                <h2>Our Trusted Clients</h2>
+                <p>Partnering with industry leaders to deliver excellence.</p>
             </div>
         </div>
-    </div>
+        <div class="clients-marquee-wrap">
+            <div class="clients-marquee-track">
+                <?php
+                $loop = array_merge($clients, $clients);
+                foreach ($loop as $client):
+                ?>
+                    <div class="clients-marquee-item">
+                        <?php if (!empty($client['image_path'])): ?>
+                            <img src="<?php echo UPLOADS_URL . htmlspecialchars($client['image_path']); ?>"
+                                 alt="<?php echo sanitize($client['client_name']); ?>"
+                                 loading="lazy">
+                        <?php else: ?>
+                            <div class="clients-marquee-placeholder">
+                                <i class="fas fa-building"></i>
+                                <span><?php echo sanitize($client['client_name']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
 
     <!-- ── About ── -->
     <section class="light-bg" id="about">
@@ -165,14 +172,7 @@ unset($service);
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- ── Our Values ── -->
-    <section id="values">
-        <div class="container-lg">
             <div class="section-title reveal">
-                <span class="section-tag">What We Stand For</span>
                 <h2>Our Values</h2>
                 <p>At NAM Builders and Supply Corp., our commitment is rooted in a set of core values that drive our business.</p>
             </div>
@@ -250,6 +250,29 @@ unset($service);
             </div>
         </div>
     </section>
+        <!-- ── Stats Bar ── -->
+    <div class="stats-bar" id="stats">
+        <div class="container-lg">
+            <div class="stats-grid">
+                <div class="stat-item reveal">
+                    <span class="stat-number"><span class="counter" data-target="150">0</span>+</span>
+                    <span class="stat-label">Projects Completed</span>
+                </div>
+                <div class="stat-item reveal reveal-delay-1">
+                    <span class="stat-number"><span class="counter" data-target="50">0</span>+</span>
+                    <span class="stat-label">Happy Clients</span>
+                </div>
+                <div class="stat-item reveal reveal-delay-2">
+                    <span class="stat-number"><span class="counter" data-target="15">0</span>+</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+                <div class="stat-item reveal reveal-delay-3">
+                    <span class="stat-number"><span class="counter" data-target="8">0</span></span>
+                    <span class="stat-label">Service Categories</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ── Services ── -->
     <section id="services">
@@ -322,35 +345,125 @@ unset($service);
         </div>
     </div>
 
-    <!-- ── Clients ── -->
-    <section class="clients-section" id="clients">
+    <!-- ══════════════════════════════════════════════════════
+         OUR TEAM SECTION
+    ══════════════════════════════════════════════════════ -->
+    <section id="team">
         <div class="container-lg">
+
             <div class="section-title reveal">
-                <span class="section-tag">Who We Work With</span>
-                <h2>Our Trusted Clients</h2>
-                <p>Partnering with industry leaders to deliver excellence.</p>
+                <span class="section-tag">The People Behind the Work</span>
+                <h2>Our Team</h2>
+                <p>Dedicated professionals committed to delivering excellence on every project.</p>
             </div>
-        </div>
-        <div class="clients-marquee-wrap">
-            <div class="clients-marquee-track">
-                <?php
-                $loop = array_merge($clients, $clients);
-                foreach ($loop as $client):
-                ?>
-                    <div class="clients-marquee-item">
-                        <?php if (!empty($client['image_path'])): ?>
-                            <img src="<?php echo UPLOADS_URL . htmlspecialchars($client['image_path']); ?>"
-                                 alt="<?php echo sanitize($client['client_name']); ?>"
-                                 loading="lazy">
-                        <?php else: ?>
-                            <div class="clients-marquee-placeholder">
-                                <i class="fas fa-building"></i>
-                                <span><?php echo sanitize($client['client_name']); ?></span>
+
+            <div class="team-grid">
+
+                <!-- Card 1 -->
+                <div class="team-card reveal reveal-delay-1">
+                    <div class="team-photo">
+                        <img src="css/assets/hero-bg.jpg"
+                             alt="Team Member">
+                        <div class="team-hover-overlay">
+                            <div class="team-socials">
+                                <a href="https://www.facebook.com/k8.kit" class="team-social-btn" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="Twitter / X">
+                                    <i class="fab fa-x-twitter"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
                             </div>
-                        <?php endif; ?>
+                            <p class="team-hover-quote">"Excellence is not a skill, it's an attitude."</p>
+                        </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                    <div class="team-info">
+                        <h4 class="team-name">NAM</h4>
+                        <span class="team-role">Project Manager</span>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="team-card reveal reveal-delay-2">
+                    <div class="team-photo">
+                        <img src="css/assets/hero-bg.jpg"
+                             alt="Team Member">
+                        <div class="team-hover-overlay">
+                            <div class="team-socials">
+                                <a href="#" class="team-social-btn" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="Twitter / X">
+                                    <i class="fab fa-x-twitter"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                            <p class="team-hover-quote">"Building trust, one project at a time."</p>
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <h4 class="team-name">NAM</h4>
+                        <span class="team-role">Founder, CEO</span>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="team-card reveal reveal-delay-3">
+                    <div class="team-photo">
+                        <img src="css/assets/hero-bg.jpg"
+                             alt="Team Member">
+                        <div class="team-hover-overlay">
+                            <div class="team-socials">
+                                <a href="#" class="team-social-btn" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="Twitter / X">
+                                    <i class="fab fa-x-twitter"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                            <p class="team-hover-quote">"Quality is never an accident."</p>
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <h4 class="team-name">NAM</h4>
+                        <span class="team-role">Lead Engineer</span>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="team-card reveal reveal-delay-4">
+                    <div class="team-photo">
+                        <img src="css/assets/hero-bg.jpg"
+                             alt="Team Member">
+                        <div class="team-hover-overlay">
+                            <div class="team-socials">
+                                <a href="#" class="team-social-btn" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="Twitter / X">
+                                    <i class="fab fa-x-twitter"></i>
+                                </a>
+                                <a href="#" class="team-social-btn" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                            <p class="team-hover-quote">"Safety first, quality always."</p>
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <h4 class="team-name">NAM</h4>
+                        <span class="team-role">Safety Officer</span>
+                    </div>
+                </div>
+
+            </div><!-- /.team-grid -->
         </div>
     </section>
 
@@ -512,9 +625,9 @@ unset($service);
                 </div>
                 <div class="footer-section">
                     <h3>Contact Us</h3>
-                    <div class="contact-info"><i class="fas fa-map-marker-alt"></i><span>Your Address Here, Philippines</span></div>
-                    <div class="contact-info"><i class="fas fa-phone"></i><span>+63 9XX XXX XXXX</span></div>
-                    <div class="contact-info"><i class="fas fa-envelope"></i><span>info@nambuilders.com</span></div>
+                    <div class="contact-info"><i class="fas fa-map-marker-alt"></i><span>RNA Building Brgy. Santiago Malvar, Batangas</span><span>Poblacion Brgy. 4, Tanauan City, Batangas</span></div>
+                    <div class="contact-info"><i class="fas fa-phone"></i><span>09230209877</span><span>/ 09385314311</span><span>/ 09568365775</span><span>/ 09461704399</span></div>
+                    <div class="contact-info"><i class="fas fa-envelope"></i><span>nam.nswt@myahoo.com</span></div>
                 </div>
             </div>
             <div class="footer-bottom">
