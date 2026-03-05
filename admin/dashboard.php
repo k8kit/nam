@@ -148,7 +148,7 @@ if ($result) {
             color: #fff;
         }
         .admin-nav-link.active {
-            background: #fff;
+            background: var(--light-bg);
             color: var(--primary-color) !important;
             font-weight: 700;
             box-shadow: 0 3px 12px rgba(0,0,0,.15);
@@ -238,7 +238,12 @@ if ($result) {
                     Admin Panel
                 </div>
             </div>
-            
+            <!-- Close button (mobile only) -->
+            <button id="sidebarCloseBtn"
+                    style="margin-left:auto; background:rgba(255,255,255,.1); border:none; border-radius:6px; width:30px; height:30px; color:rgba(255,255,255,.7); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;"
+                    title="Close menu">
+                &times;
+            </button>
         </div>
 
         <!-- Nav links -->

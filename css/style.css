@@ -116,9 +116,8 @@ header.scrolled {
 /* ── HERO — fixed height ── */
 .hero {
     min-height: 100vh;
-    background:
-        linear-gradient(135deg, rgba(10,10,10,.75) 0%, rgba(21,101,192,.55) 100%),
-        url('assets/hero-bg.jpg') center/cover no-repeat;
+    background: linear-gradient(135deg, rgba(10,10,10,.85) 0%, rgba(21,101,192,.65) 100%);
+        
     display: flex;
     align-items: center;
     justify-content: center;
@@ -134,7 +133,15 @@ header.scrolled {
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
-    opacity: .35;
+    opacity: .55; /* was .35 */
+    pointer-events: none;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
     pointer-events: none;
 }
 
@@ -143,6 +150,7 @@ header.scrolled {
     z-index: 2;
     padding: 2rem 1rem;
     animation: heroFadeIn .9s ease both;
+    position: relative;
 }
 
 @keyframes heroFadeIn {
@@ -152,9 +160,10 @@ header.scrolled {
 
 .hero-eyebrow {
     display: inline-block;
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.25);
-    color: rgba(255,255,255,.9);
+    background: rgba(13, 71, 161, 0.7);
+    border: 1px solid rgba(100, 181, 246, 0.7);
+    color: #ffffff;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
     font-size: .78rem;
     font-weight: 700;
     letter-spacing: .12em;
@@ -167,17 +176,22 @@ header.scrolled {
 }
 
 .hero h1 {
-    color: #fff;
+    color: #ffffff;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.85), 0 1px 6px rgba(0,0,0,0.9);
     font-size: clamp(2.4rem, 6vw, 4rem);
     font-weight: 800;
     margin-bottom: 1.1rem;
     line-height: 1.1;
     animation: heroFadeIn .9s .2s ease both;
 }
-.hero .highlight { color: #64B5F6; }
+.hero .highlight { 
+    color: #64B5F6;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8), 0 0 30px rgba(100,181,246,0.4);
+}
 
 .hero p {
-    color: rgba(255,255,255,.85);
+    color: #ffffff;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.9);
     font-size: 1.1rem;
     margin-bottom: 2.2rem;
     animation: heroFadeIn .9s .3s ease both;

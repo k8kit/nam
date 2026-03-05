@@ -58,6 +58,12 @@ unset($service);
 
     <!-- ── Hero ── -->
     <section class="hero" id="home">
+        <!-- Video Background -->
+        <video autoplay muted loop playsinline
+            style="position:absolute; inset:0; width:100%; height:100%;
+                    object-fit:cover; z-index:0; pointer-events:none;">
+            <source src="css/assets/hero-bg.mp4" type="video/mp4">
+        </video>
         <div class="hero-content">
             <span class="hero-eyebrow">
                 <i class="fas fa-hard-hat"></i>
@@ -77,37 +83,6 @@ unset($service);
         <div class="hero-scroll-hint">
             <small>Scroll</small>
             <span><i class="fas fa-chevron-down"></i></span>
-        </div>
-    </section>
-
-    <section class="clients-section" id="clients">
-        <div class="container-lg">
-            <div class="section-title reveal">
-                <span class="section-tag">Who We Work With</span>
-                <h2>Our Trusted Clients</h2>
-                <p>Partnering with industry leaders to deliver excellence.</p>
-            </div>
-        </div>
-        <div class="clients-marquee-wrap">
-            <div class="clients-marquee-track">
-                <?php
-                $loop = array_merge($clients, $clients);
-                foreach ($loop as $client):
-                ?>
-                    <div class="clients-marquee-item">
-                        <?php if (!empty($client['image_path'])): ?>
-                            <img src="<?php echo UPLOADS_URL . htmlspecialchars($client['image_path']); ?>"
-                                 alt="<?php echo sanitize($client['client_name']); ?>"
-                                 loading="lazy">
-                        <?php else: ?>
-                            <div class="clients-marquee-placeholder">
-                                <i class="fas fa-building"></i>
-                                <span><?php echo sanitize($client['client_name']); ?></span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
         </div>
     </section>
 
@@ -323,6 +298,38 @@ unset($service);
             </div>
         </div>
     </section>
+
+    <section class="clients-section" id="clients">
+        <div class="container-lg">
+            <div class="section-title reveal">
+                <span class="section-tag">Who We Work With</span>
+                <h2>Our Trusted Clients</h2>
+                <p>Partnering with industry leaders to deliver excellence.</p>
+            </div>
+        </div>
+        <div class="clients-marquee-wrap">
+            <div class="clients-marquee-track">
+                <?php
+                $loop = array_merge($clients, $clients);
+                foreach ($loop as $client):
+                ?>
+                    <div class="clients-marquee-item">
+                        <?php if (!empty($client['image_path'])): ?>
+                            <img src="<?php echo UPLOADS_URL . htmlspecialchars($client['image_path']); ?>"
+                                 alt="<?php echo sanitize($client['client_name']); ?>"
+                                 loading="lazy">
+                        <?php else: ?>
+                            <div class="clients-marquee-placeholder">
+                                <i class="fas fa-building"></i>
+                                <span><?php echo sanitize($client['client_name']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+
 
     <!-- ── Service Modal ── -->
     <div id="svcModal" role="dialog" aria-modal="true" aria-labelledby="svcmTitle">
