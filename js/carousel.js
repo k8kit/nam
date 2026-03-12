@@ -660,9 +660,13 @@
             svcTrack.style.transform = 'translateX(' + currentTx + 'px)';
         }
 
-        /* centre the active card in the viewport */
+        /* centre the active card in the full-width .svc-viewport */
+        var svcViewport = document.querySelector('.svc-viewport');
+        function getViewportW() {
+            return svcViewport ? svcViewport.clientWidth : window.innerWidth;
+        }
         function getTxForCard(idx) {
-            var vw = window.innerWidth;
+            var vw = getViewportW();
             return (vw * 0.5 - CARD_W * 0.5) - idx * (CARD_W + CARD_GAP);
         }
 

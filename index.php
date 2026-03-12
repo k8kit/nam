@@ -79,7 +79,7 @@ unset($upd);
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-lg">
                 <a class="navbar-brand" href="#home">
-                    <img src="css/assets/logo.png" alt="NAM Builders" onerror="this.style.display='none'">
+                    <img src="css/assets/logo.png" alt="NAM Builders and Supply Corp" onerror="this.style.display='none'">
                     <span style="color:var(--primary-dark);">NAM Builders and Supply Corp.</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -139,7 +139,7 @@ unset($upd);
                 <div class="about-img-col reveal">
                     <div class="about-img-wrap">
                         <img src="css/assets/about-bg.jpg"
-                             alt="NAM Builders team"
+                             alt="NAM Builders and Supply Corp team"
                              onerror="this.src='https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=700&q=80'">
                         <div class="about-badge">
                             <span class="about-badge-num">15<sup>+</sup></span>
@@ -198,29 +198,35 @@ unset($upd);
             <div class="stats-bar" id="stats" style="border-radius: 12px; margin: 3rem 0 2rem;">
                 <div class="container-lg">
                     <div class="stats-grid">
-                        <div class="stat-item reveal">
-                            <span class="stat-number"><span class="counter" data-target="150">0</span>+</span>
-                            <span class="stat-label">Projects Completed</span>
+                        <?php
+                        $site_stats_res = $conn->query("SELECT * FROM site_stats WHERE is_active = 1 ORDER BY sort_order ASC");
+                        $site_stats = $site_stats_res ? $site_stats_res->fetch_all(MYSQLI_ASSOC) : [];
+                        // Fallback to hardcoded if table doesn't exist yet
+                        if (empty($site_stats)) {
+                            $site_stats = [
+                                ['value' => 150, 'suffix' => '+', 'label' => 'Projects Completed'],
+                                ['value' => 50,  'suffix' => '+', 'label' => 'Happy Clients'],
+                                ['value' => 15,  'suffix' => '+', 'label' => 'Years Experience'],
+                                ['value' => 6,   'suffix' => '',  'label' => 'Service Categories'],
+                            ];
+                        }
+                        foreach ($site_stats as $si => $stat):
+                            $delay_class = $si > 0 ? ' reveal-delay-' . $si : '';
+                        ?>
+                        <div class="stat-item reveal<?php echo $delay_class; ?>">
+                            <span class="stat-number">
+                                <span class="counter" data-target="<?php echo intval($stat['value']); ?>">0</span><span class="stat-suffix"><?php echo htmlspecialchars($stat['suffix'] ?? ''); ?></span>
+                            </span>
+                            <span class="stat-label"><?php echo htmlspecialchars($stat['label']); ?></span>
                         </div>
-                        <div class="stat-item reveal reveal-delay-1">
-                            <span class="stat-number"><span class="counter" data-target="50">0</span>+</span>
-                            <span class="stat-label">Happy Clients</span>
-                        </div>
-                        <div class="stat-item reveal reveal-delay-2">
-                            <span class="stat-number"><span class="counter" data-target="15">0</span>+</span>
-                            <span class="stat-label">Years Experience</span>
-                        </div>
-                        <div class="stat-item reveal reveal-delay-3">
-                            <span class="stat-number"><span class="counter" data-target="6">0</span></span>
-                            <span class="stat-label">Service Categories</span>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
 
             <div class="section-title reveal">
                 <h2>Our Values</h2>
-                <p>At NAM Builders and Supply Corp., our commitment is rooted in a set of core values that drive our business.</p>
+                <p>At NAM Builders and Supply Corp, our commitment is rooted in a set of core values that drive our business.</p>
             </div>
             <div class="values-orbit">
                 <div class="val-item val-left-1 reveal reveal-delay-1">
@@ -255,7 +261,7 @@ unset($upd);
                     <div class="val-center-ring">
                         <div class="val-center-inner">
                             <img src="css/assets/logo.png"
-                                 alt="NAM Builders and Supply Corp."
+                                 alt="NAM Builders and Supply Corp"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="val-logo-placeholder" style="display:none;">
                                 <i class="fas fa-building"></i>
@@ -309,20 +315,22 @@ unset($upd);
         -->
         <div class="svc-sticky" id="svcSticky">
 
-            <!-- Section header — centered, same style as About -->
-            <div class="svc-header">
-                <p class="svc-eyebrow">What We Do</p>
-                <h2 class="svc-title">Our <span class="svc-title-accent">Services</span></h2>
-                <p class="svc-subtitle">Comprehensive solutions tailored to your needs.</p>
-                <div class="svc-meta">
-                    <span class="svc-counter" id="svcCounter">01 / <?php echo str_pad(count($services) ?: 1, 2, '0', STR_PAD_LEFT); ?></span>
-                    <div class="svc-progress-bar">
-                        <div class="svc-progress-fill" id="svcProgressFill"></div>
+            <!-- Section header — centered, inside container -->
+            <div class="container-lg">
+                <div class="svc-header">
+                    <p class="svc-eyebrow">What We Do</p>
+                    <h2 class="svc-title">Our Services</h2>
+                    <p class="svc-subtitle">Comprehensive solutions tailored to your needs.</p>
+                    <div class="svc-meta">
+                        <span class="svc-counter" id="svcCounter">01 / <?php echo str_pad(count($services) ?: 1, 2, '0', STR_PAD_LEFT); ?></span>
+                        <div class="svc-progress-bar">
+                            <div class="svc-progress-fill" id="svcProgressFill"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Carousel: edge arrows + scrolling track -->
+            <!-- Carousel: full-width with edge arrows -->
             <div class="svc-carousel-wrap">
                 <button class="svc-arrow-btn" id="svcBtnPrev" aria-label="Previous service" disabled>
                     <i class="fas fa-chevron-left"></i>
@@ -565,7 +573,7 @@ unset($upd);
 
             <div class="upd-section-header reveal">
                 <span class="section-tag">Latest News</span>
-                <h2 class="upd-section-title">Updates &amp; <span class="upd-title-accent">Posts</span></h2>
+                <h2 class="upd-section-title">Updates &amp; Post</h2>
                 <p class="upd-section-sub">Stay informed on our latest projects, announcements, and milestones.</p>
                 <?php if (count($all_updates) > 3): ?>
                 <button class="upd-see-all-btn" id="updSeeAllBtn">
@@ -660,7 +668,7 @@ unset($upd);
                         <div class="founder-photo-bg-accent"></div>
                         <div class="founder-photo-wrap">
                             <img src="css/assets/hero-bg.jpg"
-                                alt="NAM Builders Founder & CEO"
+                                alt="NAM Builders and Supply Corp and Founder & CEO"
                                 onerror="this.src='https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80'">
                         </div>
                         <div class="founder-badge-float">
@@ -679,7 +687,7 @@ unset($upd);
             <div class="cm-left">
                 <div class="cm-left-inner">
                     <div class="cm-left-logo">
-                        <img src="css/assets/logo.png" alt="NAM Builders"
+                        <img src="css/assets/logo.png" alt="NAM Builders and Supply Corp"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="cm-logo-fallback" style="display:none;">
                             <i class="fas fa-building"></i>
@@ -806,7 +814,7 @@ unset($upd);
         <div class="container-lg">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3><i class="fas fa-building"></i> NAM Builders</h3>
+                    <h3> NAM Builders and Supply Corp</h3>
                     <p>Complete construction and industrial solutions with a focus on quality, safety, and client satisfaction.</p>
                 </div>
                 <div class="footer-section">

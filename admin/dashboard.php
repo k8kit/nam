@@ -25,7 +25,7 @@ if ($result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - NAM Builders and Supply Corps</title>
+    <title>Admin Dashboard - NAM Builders</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
@@ -75,10 +75,12 @@ if ($result) {
                  style="height:36px;width:auto;object-fit:contain;flex-shrink:0;"
                  onerror="this.style.display='none'">
             <div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;color:#fff;line-height:1.2;">NAM Builders and Supply Corps</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;color:#fff;line-height:1.2;">NAM Builders</div>
                 <div style="font-size:.68rem;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.06em;text-transform:uppercase;">Admin Panel</div>
             </div>
-
+            <button id="sidebarCloseBtn"
+                    style="margin-left:auto;background:rgba(255,255,255,.1);border:none;border-radius:6px;width:30px;height:30px;color:rgba(255,255,255,.7);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+                    title="Close menu">&times;</button>
         </div>
 
         <nav style="padding:.75rem 0;flex:1;display:flex;flex-direction:column;">
@@ -108,6 +110,10 @@ if ($result) {
                             <?php echo $stats['total_updates']; ?>
                         </span>
                     <?php endif; ?>
+                </a>
+                <!-- ── Stats ── -->
+                <a href="dashboard.php?page=stats" class="admin-nav-link <?php echo $page==='stats'?'active':''; ?>">
+                    <i class="fas fa-chart-bar" style="width:16px;text-align:center;"></i> Stats
                 </a>
                 <a href="dashboard.php?page=messages" class="admin-nav-link <?php echo $page==='messages'?'active':''; ?>">
                     <i class="fas fa-envelope" style="width:16px;text-align:center;"></i> Messages
@@ -141,6 +147,7 @@ if ($result) {
                         case 'services': echo 'Manage Services';  break;
                         case 'supplies': echo 'Manage Supplies';  break;
                         case 'updates':  echo 'Updates &amp; Posts'; break;
+                        case 'stats':    echo 'Stats Section';    break;
                         case 'messages': echo 'Contact Messages'; break;
                         default:         echo 'Dashboard Overview';
                     }
@@ -169,6 +176,7 @@ if ($result) {
                     case 'services': require 'pages/services.php'; break;
                     case 'supplies': require 'pages/supplies.php'; break;
                     case 'updates':  require 'pages/updates.php';  break;
+                    case 'stats':    require 'pages/stats.php';    break;
                     case 'messages': require 'pages/messages.php'; break;
                     default:         require 'pages/overview.php';
                 }

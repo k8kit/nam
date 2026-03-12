@@ -177,11 +177,11 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
         <table class="admin-table" id="suppliesTable">
             <thead>
                 <tr>
+                    <th>Order</th>
                     <th>Supply</th>
                     <th>Category</th>
-                    <th>Description</th>
-                    <th>Order</th>
                     <th>Status</th>
+                    <th>Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -189,17 +189,10 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
                 <?php foreach ($supplies as $sup): ?>
                 <tr data-cat="<?php echo $sup['category_id']; ?>"
                     data-search="<?php echo strtolower(htmlspecialchars($sup['supply_name'].' '.$sup['description'].' '.$sup['category_name'])); ?>">
+                    <td style="font-size:.85rem; text-align:center;"><?php echo $sup['sort_order']; ?></td>
                     <td>
                         <div class="sup-name-cell">
-                            <?php if (!empty($sup['image_path'])): ?>
-                                <img class="sup-thumb"
-                                     src="<?php echo UPLOADS_URL . htmlspecialchars($sup['image_path']); ?>"
-                                     alt="<?php echo htmlspecialchars($sup['supply_name']); ?>"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="sup-thumb-placeholder" style="display:none;"><i class="fas fa-box"></i></div>
-                            <?php else: ?>
-                                <div class="sup-thumb-placeholder"><i class="fas fa-box"></i></div>
-                            <?php endif; ?>
+
                             <span style="font-weight:700; font-size:.9rem;">
                                 <?php echo htmlspecialchars($sup['supply_name']); ?>
                             </span>
@@ -214,19 +207,13 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
                             <?php echo htmlspecialchars($sup['category_name'] ?? 'Uncategorized'); ?>
                         </span>
                     </td>
-                    <td style="font-size:.83rem; color:var(--text-light); max-width:220px;">
-                        <?php if (!empty($sup['description'])): ?>
-                            <?php echo htmlspecialchars(substr($sup['description'], 0, 70)) . (strlen($sup['description']) > 70 ? '…' : ''); ?>
-                        <?php else: ?>
-                            <span style="opacity:.45;">—</span>
-                        <?php endif; ?>
-                    </td>
-                    <td style="font-size:.85rem; text-align:center;"><?php echo $sup['sort_order']; ?></td>
+                    
                     <td>
                         <span class="badge" style="background-color:<?php echo $sup['is_active'] ? '#28A745' : '#6C757D'; ?>;">
                             <?php echo $sup['is_active'] ? 'Active' : 'Inactive'; ?>
                         </span>
                     </td>
+                    <td><?php echo formatDate($sup['created_at']); ?></td>
                     <td>
                         <div class="admin-actions">
                             <button class="btn-edit" onclick="editSupply(<?php echo $sup['id']; ?>)"><i class="fas fa-edit"></i></button>

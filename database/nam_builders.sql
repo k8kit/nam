@@ -137,3 +137,25 @@ CREATE TABLE IF NOT EXISTS update_images (
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_updates_active     ON updates(is_active, sort_order);
 CREATE INDEX IF NOT EXISTS idx_update_images_post ON update_images(update_id, sort_order);
+
+-- NAM Builders: Site Stats feature
+-- Run this on your nam_builders database
+
+USE nam_builders;
+
+CREATE TABLE IF NOT EXISTS site_stats (
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    stat_key    VARCHAR(60)  NOT NULL UNIQUE,   -- machine key e.g. "projects_completed"
+    label       VARCHAR(120) NOT NULL,           -- display label e.g. "Projects Completed"
+    value       INT          NOT NULL DEFAULT 0, -- numeric value e.g. 150
+    suffix      VARCHAR(10)  DEFAULT '',         -- e.g. "+" or "" or "k+"
+    sort_order  INT          DEFAULT 0,
+    is_active   TINYINT(1)   DEFAULT 1
+);
+
+-- Seed with current hardcoded values
+INSERT IGNORE INTO site_stats (stat_key, label, value, suffix, sort_order) VALUES
+  ('projects_completed', 'Projects Completed', 150, '+', 1),
+  ('happy_clients',      'Happy Clients',       50, '+', 2),
+  ('years_experience',   'Years Experience',    15, '+', 3),
+  ('service_categories', 'Service Categories',   6, '',  4);

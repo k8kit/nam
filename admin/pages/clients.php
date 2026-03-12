@@ -67,9 +67,9 @@ displayAlert();
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>Order</th>
                     <th>Client Name</th>
                     <th>Status</th>
-                    <th>Order</th>
                     <th>Created</th>
                     <th>Actions</th>
                 </tr>
@@ -77,13 +77,14 @@ displayAlert();
             <tbody>
                 <?php foreach ($clients as $client): ?>
                     <tr>
+                        <td><?php echo $client['sort_order']; ?></td>
                         <td><?php echo sanitize($client['client_name']); ?></td>
                         <td>
                             <span class="badge" style="background-color: <?php echo $client['is_active'] ? '#28A745' : '#6C757D'; ?>;">
                                 <?php echo $client['is_active'] ? 'Active' : 'Inactive'; ?>
                             </span>
                         </td>
-                        <td><?php echo $client['sort_order']; ?></td>
+                        
                         <td><?php echo formatDate($client['created_at']); ?></td>
                         <td>
                             <div class="admin-actions">

@@ -97,9 +97,8 @@ displayAlert();
         <table class="admin-table" id="updatesTable">
             <thead>
                 <tr>
-                    <th>Post</th>
-                    <th>Description</th>
                     <th>Order</th>
+                    <th>Post</th>
                     <th>Status</th>
                     <th>Date</th>
                     <th>Actions</th>
@@ -108,32 +107,21 @@ displayAlert();
             <tbody>
                 <?php foreach ($updates as $upd): ?>
                 <tr>
+                    <td style="text-align:center; font-size:.85rem;"><?php echo $upd['sort_order']; ?></td>
                     <td>
                         <div class="upd-title-cell">
-                            <?php if (!empty($upd['image_path'])): ?>
-                                <img class="upd-thumb"
-                                     src="<?php echo UPLOADS_URL . htmlspecialchars($upd['image_path']); ?>"
-                                     alt="<?php echo htmlspecialchars($upd['title']); ?>"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="upd-thumb-placeholder" style="display:none;"><i class="fas fa-image"></i></div>
-                            <?php else: ?>
-                                <div class="upd-thumb-placeholder"><i class="fas fa-image"></i></div>
-                            <?php endif; ?>
                             <span style="font-weight:700; font-size:.9rem;">
                                 <?php echo htmlspecialchars($upd['title']); ?>
                             </span>
                         </div>
                     </td>
-                    <td style="font-size:.83rem; color:var(--text-light); max-width:260px;">
-                        <?php echo htmlspecialchars(substr($upd['description'], 0, 80)) . (strlen($upd['description']) > 80 ? '…' : ''); ?>
-                    </td>
-                    <td style="text-align:center; font-size:.85rem;"><?php echo $upd['sort_order']; ?></td>
+                    
                     <td>
                         <span class="badge" style="background-color:<?php echo $upd['is_active'] ? '#28A745' : '#6C757D'; ?>;">
                             <?php echo $upd['is_active'] ? 'Published' : 'Draft'; ?>
                         </span>
                     </td>
-                    <td style="font-size:.82rem; white-space:nowrap;"><?php echo formatDate($upd['created_at']); ?></td>
+                    <td><?php echo formatDate($upd['created_at']); ?></td>
                     <td>
                         <div class="admin-actions">
                             <button class="btn-edit" onclick="editUpdate(<?php echo $upd['id']; ?>)" title="Edit">

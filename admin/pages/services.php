@@ -122,9 +122,9 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>Order</th>
                     <th>Service Name</th>
                     <th>Status</th>
-                    <th>Order</th>
                     <th>Created</th>
                     <th>Actions</th>
                 </tr>
@@ -132,13 +132,13 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
             <tbody>
                 <?php foreach ($services as $service): ?>
                     <tr>
+                        <td><?php echo $service['sort_order']; ?></td>
                         <td><?php echo sanitize($service['service_name']); ?></td>
                         <td>
                             <span class="badge" style="background-color: <?php echo $service['is_active'] ? '#28A745' : '#6C757D'; ?>;">
                                 <?php echo $service['is_active'] ? 'Active' : 'Inactive'; ?>
                             </span>
                         </td>
-                        <td><?php echo $service['sort_order']; ?></td>
                         <td><?php echo formatDate($service['created_at']); ?></td>
                         <td>
                             <div class="admin-actions">

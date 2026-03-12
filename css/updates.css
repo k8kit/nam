@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   UPDATES / POSTS  —  fixed-height cards, row-group expand
+   UPDATES / POSTS  —  fixed-height cards, smooth expand
    ════════════════════════════════════════════════════════════════ */
 
 #updates {
@@ -7,12 +7,10 @@
     padding: 60px 0 70px;
 }
 
-/* ── Section header — centered like About/Services ── */
+/* ── Section header — centered ── */
 .upd-section-header {
     text-align: center;
     margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
     display: block;
 }
 .upd-section-title {
@@ -22,11 +20,10 @@
     margin: .3rem 0 .5rem; line-height: 1.1;
 }
 .upd-title-accent { color: var(--primary-color); }
-.upd-section-sub  {
+.upd-section-sub {
     color: var(--text-light); font-size: .95rem;
     margin: 0 auto; line-height: 1.65; max-width: 520px;
 }
-
 .upd-see-all-btn {
     display: inline-flex; align-items: center; gap: .45rem;
     background: transparent; border: 1.5px solid var(--primary-color);
@@ -42,34 +39,31 @@
 .upd-see-all-btn .fa-arrow-right { font-size: .72rem; transition: transform .25s; }
 .upd-see-all-btn:hover .fa-arrow-right { transform: translateX(3px); }
 
-/* ── Grid wraps row-groups ── */
+/* ── Grid / row groups ── */
 .upd-grid { display: flex; flex-direction: column; gap: 1.2rem; }
-
-/* Each row holds up to 3 cards */
 .upd-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.2rem;
     align-items: stretch;
+    transition: grid-template-columns .42s cubic-bezier(.22,.68,0,1.1);
 }
 .upd-row.upd-row-expanded { grid-template-columns: 2fr 1fr; }
-
-/* Hidden cards */
 .upd-card-hidden { display: none !important; }
 .upd-card-hidden.upd-show { display: block !important; }
 
 /* ════════════════════════════════════════════════════════════════
-   CARD — fixed height, full-bleed portrait image
+   CARD — collapsed: full-bleed portrait image, fixed height
    ════════════════════════════════════════════════════════════════ */
 .upd-card {
     cursor: pointer;
     border-radius: 12px; overflow: hidden;
     position: relative;
-    /* Taller cards — maximize visible content without cropping */
     height: 380px;
     background: #111;
     box-shadow: 0 3px 16px rgba(0,0,0,.12);
-    transition: transform .28s cubic-bezier(.22,.68,0,1.1), box-shadow .28s ease;
+    transition: transform .3s cubic-bezier(.22,.68,0,1.1),
+                box-shadow .3s ease;
     flex-shrink: 0;
 }
 .upd-card:hover:not(.upd-active) {
@@ -77,24 +71,24 @@
     box-shadow: 0 14px 36px rgba(0,0,0,.18);
 }
 
-/* Expanded: same height, row layout */
+/* ── EXPANDED STATE — smooth crossfade ── */
 .upd-card.upd-active {
     height: 380px;
     cursor: default; transform: none !important;
     box-shadow: 0 6px 28px rgba(0,0,0,.13);
     display: flex; flex-direction: row;
     background: #fff; border-radius: 12px; overflow: hidden;
-    animation: updCardOpen .32s cubic-bezier(.22,.68,0,1.1);
+    animation: updCardOpen .42s cubic-bezier(.22,.68,0,1.1);
 }
 @keyframes updCardOpen {
-    from { opacity: .5; }
-    to   { opacity: 1; }
+    from { opacity: .3; transform: scale(.98); }
+    to   { opacity: 1;  transform: scale(1); }
 }
 
-/* ── Collapsed inner elements ── */
+/* ── BG image ── */
 .upd-card-bg {
     position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    transition: opacity .25s;
+    transition: opacity .4s ease;
 }
 .upd-card.upd-active .upd-card-bg { opacity: 0; pointer-events: none; }
 .upd-card-bg img {
@@ -109,24 +103,30 @@
     font-size: 2.8rem; color: rgba(255,255,255,.07);
 }
 
-/* Date badge */
+/* ── DATE badge — top-left, floats with margin from edges ── */
 .upd-date-badge {
-    position: absolute; top: 10px; left: 10px; z-index: 3;
-    background: #fff; border-radius: 5px; padding: .2rem .6rem;
-    font-size: .63rem; font-weight: 700; color: var(--text-dark);
-    display: inline-flex; align-items: center; gap: .28rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,.18); pointer-events: none;
-    transition: opacity .2s;
+    position: absolute;
+    top: 12px; left: 12px;
+    z-index: 3;
+    background: #fff;
+    border-radius: 6px;
+    padding: .28rem .75rem;
+    font-size: .65rem; font-weight: 700; color: var(--text-dark);
+    display: inline-flex; align-items: center; gap: .32rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.18);
+    pointer-events: none;
+    transition: opacity .35s ease;
+    /* Floating white block — not touching any edge */
 }
-.upd-date-badge i { color: var(--primary-color); font-size: .56rem; }
+.upd-date-badge i { color: var(--primary-color); font-size: .58rem; }
 .upd-card.upd-active .upd-date-badge { opacity: 0; pointer-events: none; }
 
-/* "Learn More" hover overlay */
+/* ── LEARN MORE hover overlay ── */
 .upd-learn-more {
     position: absolute; inset: 0; z-index: 2;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(13,71,161,.4);
-    opacity: 0; transition: opacity .24s ease; pointer-events: none;
+    background: rgba(13,71,161,.38);
+    opacity: 0; transition: opacity .28s ease; pointer-events: none;
 }
 .upd-card:hover:not(.upd-active) .upd-learn-more { opacity: 1; pointer-events: auto; }
 .upd-card.upd-active .upd-learn-more { display: none; }
@@ -138,28 +138,36 @@
     letter-spacing: .1em; text-transform: uppercase;
     padding: .55rem 1.2rem; border-radius: 50px;
     box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    transform: translateY(5px); transition: transform .24s ease;
+    transform: translateY(5px); transition: transform .28s ease;
 }
 .upd-card:hover:not(.upd-active) .upd-learn-more-label { transform: translateY(0); }
 .upd-learn-more-label .fa-arrow-right { font-size: .72rem; transition: transform .22s; }
 .upd-card:hover:not(.upd-active) .upd-learn-more-label .fa-arrow-right { transform: translateX(3px); }
 
-/* White title bar — bottom */
+/* ── TITLE BAR — bottom, floats with margins on all sides ── */
 .upd-card-bar {
-    position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
-    background: #fff; padding: .65rem .9rem; pointer-events: none;
-    transition: opacity .2s;
+    position: absolute;
+    bottom: 12px;       /* lift off the bottom edge */
+    left: 12px;         /* margin from left edge */
+    right: 12px;        /* margin from right edge */
+    z-index: 3;
+    background: #fff;
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    pointer-events: none;
+    box-shadow: 0 2px 14px rgba(0,0,0,.18);
+    transition: opacity .35s ease;
 }
 .upd-card.upd-active .upd-card-bar { opacity: 0; pointer-events: none; }
 .upd-card-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: .92rem; font-weight: 800; color: var(--text-dark);
+    font-size: .95rem; font-weight: 800; color: var(--text-dark);
     margin: 0; line-height: 1.3; text-align: center;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* ════════════════════════════════════════════════════════════════
-   EXPANDED PANELS — inside active card
+   EXPANDED PANELS — inside active card, smooth slide-in
    ════════════════════════════════════════════════════════════════ */
 .updx-img-side {
     flex: 0 0 56%; position: relative; background: #000;
@@ -167,15 +175,15 @@
 }
 .upd-card.upd-active .updx-img-side {
     display: block;
-    animation: updSlideIn .34s cubic-bezier(.22,.68,0,1.1);
+    animation: updSlideInL .38s cubic-bezier(.22,.68,0,1.1);
 }
-@keyframes updSlideIn {
-    from { opacity: 0; transform: translateX(-10px); }
+@keyframes updSlideInL {
+    from { opacity: 0; transform: translateX(-16px); }
     to   { opacity: 1; transform: translateX(0); }
 }
 
 .updx-slides { position: relative; width: 100%; height: 100%; }
-.updx-slide  { position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease; }
+.updx-slide  { position: absolute; inset: 0; opacity: 0; transition: opacity .38s ease; }
 .updx-slide.active { opacity: 1; }
 .updx-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .updx-slide-placeholder {
@@ -184,18 +192,19 @@
     font-size: 3rem; color: rgba(255,255,255,.07);
 }
 
-/* Date badge in expanded image */
+/* Date badge inside expanded image — same floating style */
 .updx-date-badge {
-    position: absolute; top: 10px; left: 10px; z-index: 5;
-    background: #fff; border-radius: 5px; padding: .2rem .65rem;
+    position: absolute; top: 12px; left: 12px; z-index: 5;
+    background: #fff; border-radius: 6px;
+    padding: .28rem .75rem;
     font-size: .65rem; font-weight: 700; color: var(--text-dark);
-    display: none; align-items: center; gap: .3rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,.2);
+    display: none; align-items: center; gap: .32rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.18);
 }
 .updx-date-badge i { color: var(--primary-color); font-size: .58rem; }
 .upd-card.upd-active .updx-date-badge { display: inline-flex; }
 
-/* Arrow buttons — same style as services arrows */
+/* Arrow buttons */
 .updx-arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
     z-index: 5; width: 34px; height: 34px; border-radius: 50%;
@@ -225,37 +234,39 @@
 }
 .updx-img-dot.active { background: #fff; transform: scale(1.5); }
 
-/* Text side */
+/* Text side — slides in from right */
 .updx-text-side {
     flex: 1; display: none; flex-direction: column;
-    padding: 1.4rem 1.5rem 1.2rem; gap: .75rem;
+    padding: 1.6rem 1.6rem 1.2rem; gap: .8rem;
     overflow-y: auto; background: #fff; height: 100%;
 }
 .upd-card.upd-active .updx-text-side {
     display: flex;
-    animation: updTextIn .38s .05s cubic-bezier(.22,.68,0,1.1) both;
+    animation: updSlideInR .42s .04s cubic-bezier(.22,.68,0,1.1) both;
 }
-@keyframes updTextIn {
-    from { opacity: 0; transform: translateX(8px); }
+@keyframes updSlideInR {
+    from { opacity: 0; transform: translateX(14px); }
     to   { opacity: 1; transform: translateX(0); }
 }
+
 .updx-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.25rem; font-weight: 800; color: var(--text-dark);
+    font-size: 1.3rem; font-weight: 800; color: var(--text-dark);
     margin: 0; line-height: 1.2;
+    text-align: center;
 }
 .updx-desc {
-    color: var(--text-light); font-size: .86rem; line-height: 1.75;
-    margin: 0; flex: 1; white-space: pre-line;
-    overflow-y: auto;
+    color: var(--text-light); font-size: .88rem; line-height: 1.78;
+    margin: 0; flex: 1; white-space: pre-line; overflow-y: auto;
+    text-align: left;
 }
 .updx-close-btn {
-    align-self: flex-start;
     display: inline-flex; align-items: center; gap: .38rem;
     background: var(--light-bg); border: none; color: var(--text-light);
     padding: .45rem .95rem; border-radius: 8px;
     font-size: .8rem; font-weight: 700; font-family: inherit; cursor: pointer;
-    transition: background .2s, color .2s; margin-top: auto;
+    transition: background .2s, color .2s;
+    margin-top: auto;
 }
 .updx-close-btn:hover { background: var(--border-color); color: var(--text-dark); }
 
