@@ -307,12 +307,6 @@ unset($upd);
          SERVICES — Horizontal scroll hijack
     ══════════════════════════════════════════════ -->
     <section id="services">
-
-        <!--
-            .svc-sticky uses top:72px so the section's "What We Do / Our Services"
-            header is the first thing that hits the top of the screen — freeze starts
-            exactly there, not mid-page.
-        -->
         <div class="svc-sticky" id="svcSticky">
 
             <!-- Section header — centered, inside container -->
@@ -373,7 +367,6 @@ unset($upd);
                             </div>
 
                             <div class="svc-card-label">
-                                <span class="svc-card-tag">Service</span>
                                 <h3 class="svc-card-name"><?php echo htmlspecialchars($sv['service_name']); ?></h3>
                                 <span class="svc-card-cta">Learn more <i class="fas fa-arrow-right"></i></span>
                             </div>
@@ -568,9 +561,9 @@ unset($upd);
     <!-- ════════════════════════════════════════════════════════
          UPDATES / POSTS
     ════════════════════════════════════════════════════════ -->
+
     <section id="updates">
         <div class="container-lg">
-
             <div class="upd-section-header reveal">
                 <span class="section-tag">Latest News</span>
                 <h2 class="upd-section-title">Updates &amp; Post</h2>
@@ -823,7 +816,8 @@ unset($upd);
                         <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
                         <li><a href="#about"><i class="fas fa-chevron-right"></i> About</a></li>
                         <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
-                        <li><a href="#clients"><i class="fas fa-chevron-right"></i> Clients</a></li>
+                        <li><a href="#supplies"><i class="fas fa-chevron-right"></i> Supplies</a></li>
+                        <li><a href="#updates"><i class="fas fa-chevron-right"></i> Updates</a></li>
                         <li><a href="javascript:void(0);" id="footerContactLink"><i class="fas fa-chevron-right"></i> Contact</a></li>
                     </ul>
                 </div>
