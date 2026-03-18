@@ -126,10 +126,6 @@ unset($upd);
                 </button>
             </div>
         </div>
-        <div class="hero-scroll-hint">
-            <small>Scroll</small>
-            <span><i class="fas fa-chevron-down"></i></span>
-        </div>
     </section>
 
     <!-- ── About ── -->
@@ -520,12 +516,13 @@ unset($upd);
     </section>
 
     <!-- ── Clients ── -->
+
     <section class="clients-section" id="clients">
         <div class="container-lg">
             <div class="section-title reveal">
                 <span class="section-tag">Who We Work With</span>
                 <h2>Our Trusted Clients</h2>
-                <p>Partnering with industry leaders to deliver excellence.</p>
+                <p>Partnering Industry Leaders to Deliver Excellence.</p>
             </div>
         </div>
         <div class="clients-marquee-wrap">
