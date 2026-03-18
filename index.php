@@ -424,7 +424,7 @@ unset($upd);
         </div>
     </div>
 
-    <!-- ── Supplies Section ── -->
+<!-- ── Supplies Section ── -->
     <section id="supplies">
         <div class="container-lg">
             <div class="section-title reveal">
@@ -434,89 +434,74 @@ unset($upd);
             </div>
 
             <?php if (!empty($supply_categories)): ?>
-            <div class="sup-filter-bar reveal">
-                <button class="sup-filter-pill active" data-filter="all">
-                    <i class="fas fa-layer-group"></i>
-                    <span>All</span>
-                    <em><?php echo count($all_supplies); ?></em>
+
+            <!-- Category header banner -->
+            <div class="sup-cat-header reveal">
+                <?php foreach ($supply_categories as $idx => $scat): if ($scat['supply_count'] < 1) continue; ?>
+                <button class="sup-cat-btn<?php echo $idx === 0 ? ' active' : ''; ?>"
+                        data-cat-id="<?php echo $scat['id']; ?>"
+                        data-cat-name="<?php echo htmlspecialchars($scat['category_name']); ?>"
+                        data-cat-desc="<?php echo htmlspecialchars($scat['description'] ?? ''); ?>">
+                    <?php echo htmlspecialchars($scat['category_name']); ?>
                 </button>
-                <?php foreach ($supply_categories as $scat): ?>
-                    <?php if ($scat['supply_count'] > 0): ?>
-                    <button class="sup-filter-pill" data-filter="<?php echo $scat['id']; ?>"
-                            style="--cat-color:#1565C0;">
-                        <i class="fas fa-tag"></i>
-                        <span><?php echo htmlspecialchars($scat['category_name']); ?></span>
-                        <em><?php echo $scat['supply_count']; ?></em>
-                    </button>
-                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
 
-            <div class="sup-cards-grid" id="supCardsGrid">
-                <?php if (!empty($all_supplies)): ?>
-                    <?php foreach ($all_supplies as $i => $sup):
-                        $imgSrc = !empty($sup['image_path']) ? UPLOADS_URL . htmlspecialchars($sup['image_path']) : '';
-                        $delay  = ($i % 4) * 0.07;
-                    ?>
-                    <div class="sup-item reveal"
-                        data-cat="<?php echo $sup['category_id']; ?>"
-                        style="animation-delay:<?php echo $delay; ?>s;">
-                        <div class="sup-item-inner">
-                            <div class="sup-item-img" style="--cat-bg:#1565C0;">
-                                <?php if ($imgSrc): ?>
-                                    <img src="<?php echo $imgSrc; ?>"
-                                        alt="<?php echo htmlspecialchars($sup['supply_name']); ?>"
-                                        loading="lazy"
-                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="sup-item-icon-placeholder" style="display:none;">
-                                        <i class="fas fa-box"></i>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="sup-item-icon-placeholder">
-                                        <i class="fas fa-box"></i>
-                                    </div>
-                                <?php endif; ?>
-                                <span class="sup-item-cat-badge" style="background:#1565C0;">
-                                    <i class="fas fa-tag"></i>
-                                    <?php echo htmlspecialchars($sup['category_name'] ?? ''); ?>
-                                </span>
-                            </div>
-                            <div class="sup-item-body">
-                                <h4 class="sup-item-name"><?php echo htmlspecialchars($sup['supply_name']); ?></h4>
-                                <?php if (!empty($sup['description'])): ?>
-                                    <p class="sup-item-desc"><?php echo htmlspecialchars($sup['description']); ?></p>
-                                <?php endif; ?>
-                            </div>
-                            <div class="sup-item-hover">
-                                <button class="sup-inquire-btn" onclick="openSupplyInquiry('<?php echo htmlspecialchars(addslashes($sup['supply_name'])); ?>')">
-                                    <i class="fas fa-paper-plane"></i> Inquire
-                                </button>
-                            </div>
-                        </div>
+            <!-- 2-column body -->
+            <div class="sup-body-layout">
+                <!-- Left: category info -->
+                <div class="sup-info-col">
+                    <div class="sup-info-name" id="supInfoName"></div>
+                    <div class="sup-info-desc" id="supInfoDesc"></div>
+                    <button class="sup-inquire-now-btn" id="supInquireBtn">
+                        <i class="fas fa-paper-plane"></i> Inquire Now
+                    </button>
+                </div>
+
+                <!-- Right: image grid + pagination -->
+                <div class="sup-grid-col">
+                    <div class="sup-img-grid" id="supImgGrid"></div>
+                    <div class="sup-pagination">
+                        <button class="sup-pag-btn" id="supPagPrev" disabled aria-label="Previous page">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="sup-pag-info" id="supPagInfo">Page 1</div>
+                        <button class="sup-pag-btn" id="supPagNext" aria-label="Next page">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="sup-empty-state">
-                        <i class="fas fa-boxes"></i>
-                        <p>Supply catalog coming soon.</p>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
 
-            <div id="supNoResultsPublic" style="display:none; text-align:center; color:var(--text-light); padding:3rem 1rem;">
-                <i class="fas fa-search" style="font-size:2.5rem; margin-bottom:.75rem; display:block; opacity:.4;"></i>
-                No supplies found in this category.
-            </div>
+            <!-- Pass PHP data to carousel.js — no logic here -->
+            <script>
+            window.supUploadsUrl = '<?php echo UPLOADS_URL; ?>';
+            window.supCatData = {};
+            <?php
+            $grouped = [];
+            foreach ($all_supplies as $sup) {
+                $cid = $sup['category_id'];
+                if (!isset($grouped[$cid])) $grouped[$cid] = [];
+                $grouped[$cid][] = [
+                    'name'  => $sup['supply_name'],
+                    'image' => $sup['image_path'] ?? '',
+                ];
+            }
+            foreach ($grouped as $cid => $items) {
+                echo 'window.supCatData[' . intval($cid) . '] = ' . json_encode($items) . ';' . "\n";
+            }
+            ?>
+            </script>
+
             <?php else: ?>
-                <div style="text-align:center; color:var(--text-light); padding:2rem;">
-                    Supply catalog is being updated. Please check back soon.
-                </div>
+            <div style="text-align:center; color:var(--text-light); padding:2rem;">
+                Supply catalog is being updated. Please check back soon.
+            </div>
             <?php endif; ?>
         </div>
     </section>
 
     <!-- ── Clients ── -->
-
     <section class="clients-section" id="clients">
         <div class="container-lg">
             <div class="section-title reveal">
@@ -548,9 +533,7 @@ unset($upd);
         </div>
     </section>
 
-    <!-- ════════════════════════════════════════════════════════
-         UPDATES / POSTS
-    ════════════════════════════════════════════════════════ -->
+    <!-- UPDATES / POSTS -->
 
     <section id="updates">
         <div class="container-lg">

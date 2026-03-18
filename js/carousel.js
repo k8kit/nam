@@ -406,7 +406,7 @@
         );
     });
 
-    /* Verify button — on success: close modals, show front toast */
+    /* Verify button */
     vmVerifyBtn.addEventListener('click', function () {
         var code = getCode();
         if (code.length !== 6) return;
@@ -428,7 +428,6 @@
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.success) {
-                    /* Close both modals, reset form, show front toast */
                     closeVerifyModal();
                     closeContactModal();
                     contactForm.reset();
@@ -452,7 +451,7 @@
 
 
     /* ═══════════════════════════════════════════════
-       8. SUPPLIES SECTION FILTER
+       8. SUPPLIES SECTION FILTER (legacy pill filter — kept for fallback)
     ═══════════════════════════════════════════════ */
     (function () {
         var supPills = document.querySelectorAll('.sup-filter-pill');
@@ -644,6 +643,231 @@
             window.addEventListener('resize', function () { recalc(); updateUI(); });
         }
 
+        if (document.readyState === 'complete') { init(); }
+        else { window.addEventListener('load', init); }
+    }());
+
+
+    /* ═══════════════════════════════════════════════
+       12. SUPPLIES — category panel + paginated grid
+    ═══════════════════════════════════════════════ */
+    (function () {
+        var PER_PAGE = 12;
+
+        /* catData and UPLOADS_URL set by index.php inline script */
+        function getCatData()    { return window.supCatData    || {}; }
+        function getUploadsUrl() { return window.supUploadsUrl || ''; }
+
+        var infoName = document.getElementById('supInfoName');
+        var infoDesc = document.getElementById('supInfoDesc');
+        var grid     = document.getElementById('supImgGrid');
+        var pagInfo  = document.getElementById('supPagInfo');
+        var btnPrev  = document.getElementById('supPagPrev');
+        var btnNext  = document.getElementById('supPagNext');
+        var catBtns  = document.querySelectorAll('.sup-cat-btn');
+
+        if (!grid || !catBtns.length) return;
+
+        var activeCat  = null;
+        var curPage    = 1;
+        var totalPages = 1;
+
+        function getItems() { return (getCatData()[activeCat]) || []; }
+
+        function renderGrid() {
+            var items = getItems();
+            totalPages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+            /* clamp curPage in case category has fewer pages */
+            if (curPage > totalPages) curPage = totalPages;
+            var start = (curPage - 1) * PER_PAGE;
+            var slice = items.slice(start, start + PER_PAGE);
+
+            grid.innerHTML = '';
+
+            /* Only render real items — no pad cells */
+            slice.forEach(function (sup) {
+                var cell = document.createElement('div');
+                cell.className = 'sup-img-cell';
+                cell.setAttribute('title', sup.name);
+
+                if (sup.image) {
+                    var img = document.createElement('img');
+                    img.src     = getUploadsUrl() + sup.image;
+                    img.alt     = sup.name;
+                    img.loading = 'lazy';
+                    img.onerror = function () {
+                        this.style.display = 'none';
+                        cell.classList.add('sup-img-cell--empty');
+                    };
+                    cell.appendChild(img);
+                } else {
+                    cell.classList.add('sup-img-cell--empty');
+                }
+
+                /* Hover / click name overlay */
+                var overlay = document.createElement('div');
+                overlay.className = 'sup-img-overlay';
+                var label = document.createElement('span');
+                label.className = 'sup-img-label';
+                label.textContent = sup.name;
+                overlay.appendChild(label);
+                cell.appendChild(overlay);
+
+                /* Toggle active on tap (mobile) */
+                cell.addEventListener('click', function () {
+                    var isActive = cell.classList.contains('sup-active');
+                    document.querySelectorAll('.sup-img-cell.sup-active').forEach(function (c) {
+                        c.classList.remove('sup-active');
+                    });
+                    if (!isActive) cell.classList.add('sup-active');
+                });
+
+                grid.appendChild(cell);
+            });
+
+            /* Show "no items" message if category is empty */
+            if (!slice.length) {
+                var empty = document.createElement('p');
+                empty.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--text-light);padding:2rem;';
+                empty.textContent = 'No supplies in this category yet.';
+                grid.appendChild(empty);
+            }
+
+            pagInfo.textContent = 'Page ' + curPage + ' of ' + totalPages;
+            btnPrev.disabled    = curPage === 1;
+            btnNext.disabled    = curPage === totalPages;
+        }
+
+        function switchCat(btn) {
+            catBtns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+
+            var newCat = parseInt(btn.getAttribute('data-cat-id'));
+            /* Skip if same category */
+            if (newCat === activeCat) return;
+
+            activeCat = newCat;
+            curPage   = 1;
+
+            /* Fade all three elements together */
+            [infoName, infoDesc, grid].forEach(function (el) { el.classList.add('sup-fade'); });
+
+            setTimeout(function () {
+                infoName.textContent = btn.getAttribute('data-cat-name');
+                infoDesc.textContent = btn.getAttribute('data-cat-desc');
+                renderGrid();
+                [infoName, infoDesc, grid].forEach(function (el) { el.classList.remove('sup-fade'); });
+            }, 220);
+        }
+
+        function fadePage() {
+            grid.classList.add('sup-fade');
+            setTimeout(function () {
+                renderGrid();
+                grid.classList.remove('sup-fade');
+            }, 180);
+        }
+
+        /* Init: run after the page's inline script has set window.supCatData */
+        function init() {
+            var firstBtn = document.querySelector('.sup-cat-btn.active');
+            if (!firstBtn) firstBtn = catBtns[0];
+            if (firstBtn) {
+                activeCat = parseInt(firstBtn.getAttribute('data-cat-id'));
+                infoName.textContent = firstBtn.getAttribute('data-cat-name');
+                infoDesc.textContent = firstBtn.getAttribute('data-cat-desc');
+                renderGrid();
+            }
+
+            /* ── JS-based sticky for the info column ──
+               CSS sticky fails here because ancestor elements have
+               overflow rules. JS scroll is the reliable fallback.  */
+            var infoCol    = document.querySelector('.sup-info-col');
+            var bodyLayout = document.querySelector('.sup-body-layout');
+            var NAVBAR_H   = 80; /* height of fixed navbar + small gap */
+
+            if (infoCol && bodyLayout) {
+                function updateSticky() {
+                    /* Only apply on desktop (>768px) */
+                    if (window.innerWidth <= 768) {
+                        infoCol.style.transform = '';
+                        infoCol.style.width     = '';
+                        return;
+                    }
+                    var layoutRect = bodyLayout.getBoundingClientRect();
+                    var colRect    = infoCol.getBoundingClientRect();
+                    var colNatural = bodyLayout.offsetTop + (infoCol.offsetTop - bodyLayout.offsetTop);
+
+                    /* How far the top of the layout is above the sticky point */
+                    var scrolledPast = NAVBAR_H - layoutRect.top;
+
+                    if (scrolledPast > 0) {
+                        /* Max translateY so the column never goes below the layout bottom */
+                        var maxShift = bodyLayout.offsetHeight - infoCol.offsetHeight;
+                        var shift    = Math.min(scrolledPast, maxShift > 0 ? maxShift : 0);
+                        infoCol.style.transform = 'translateY(' + shift + 'px)';
+                    } else {
+                        infoCol.style.transform = '';
+                    }
+                }
+
+                window.addEventListener('scroll', updateSticky, { passive: true });
+                window.addEventListener('resize', updateSticky, { passive: true });
+                updateSticky();
+            }
+
+            /* ── Inquire Now button ── */
+            var inquireBtn = document.getElementById('supInquireBtn');
+            if (inquireBtn) {
+                inquireBtn.addEventListener('click', function () {
+                    /* Pre-select "Supply Services" in the contact form */
+                    var serviceSelect = document.getElementById('cf_service');
+                    if (serviceSelect) {
+                        var matched = false;
+                        for (var i = 0; i < serviceSelect.options.length; i++) {
+                            if (serviceSelect.options[i].text.toLowerCase().includes('supply')) {
+                                serviceSelect.value = serviceSelect.options[i].value;
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (!matched) {
+                            /* Add a temporary option if none found */
+                            var opt = document.createElement('option');
+                            opt.value = opt.text = 'Supply Services';
+                            opt.id = 'supTempOpt';
+                            serviceSelect.appendChild(opt);
+                            serviceSelect.value = 'Supply Services';
+                        }
+                    }
+                    /* Pre-fill message with current category name */
+                    var catName  = (infoName && infoName.textContent.trim()) ? infoName.textContent.trim() : 'Supplies';
+                    var msgField = document.getElementById('cf_message');
+                    if (msgField && !msgField.value.trim()) {
+                        msgField.value = 'I am interested in: ' + catName + '\n\nPlease send me availability and pricing information.';
+                    }
+                    /* Open the contact modal */
+                    var contactModal = document.getElementById('contactModal');
+                    if (contactModal) {
+                        contactModal.classList.add('open');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            }
+        }
+
+        catBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () { switchCat(btn); });
+        });
+
+        btnPrev.addEventListener('click', function () {
+            if (curPage > 1) { curPage--; fadePage(); }
+        });
+        btnNext.addEventListener('click', function () {
+            if (curPage < totalPages) { curPage++; fadePage(); }
+        });
+
+        /* Run after full page load so PHP inline script has executed */
         if (document.readyState === 'complete') { init(); }
         else { window.addEventListener('load', init); }
     }());
