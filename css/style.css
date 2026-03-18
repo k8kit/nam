@@ -219,7 +219,7 @@ section.light-bg { background:var(--light-bg); }
 /* ════════════════════════════════════════════════════════════════
    SUPPLIES
    ════════════════════════════════════════════════════════════════ */
-#supplies { background:var(--light-bg); padding:60px 0; }
+#supplies { background:var(--light-bg); padding:60px 0; overflow: visible; }
 /* ════════════════════════════════════════════════════════════════
    SUPPLIES — category-panel layout
    ════════════════════════════════════════════════════════════════ */
@@ -275,7 +275,6 @@ section.light-bg { background:var(--light-bg); }
     grid-template-columns: 280px 1fr;
     gap: 24px;
     align-items: start;
-    overflow: visible;
 }
 
 /* ── Left info column ── */
@@ -283,10 +282,6 @@ section.light-bg { background:var(--light-bg); }
     display: flex;
     flex-direction: column;
     gap: 14px;
-    position: sticky;
-    top: 88px;
-    align-self: flex-start;
-    max-height: calc(100vh - 100px);
 }
 .sup-info-name {
     border: 1.5px solid var(--border-color);
