@@ -779,43 +779,6 @@
                 renderGrid();
             }
 
-            /* ── JS-based sticky for the info column ──
-               CSS sticky fails here because ancestor elements have
-               overflow rules. JS scroll is the reliable fallback.  */
-            var infoCol    = document.querySelector('.sup-info-col');
-            var bodyLayout = document.querySelector('.sup-body-layout');
-            var NAVBAR_H   = 80; /* height of fixed navbar + small gap */
-
-            if (infoCol && bodyLayout) {
-                function updateSticky() {
-                    /* Only apply on desktop (>768px) */
-                    if (window.innerWidth <= 768) {
-                        infoCol.style.transform = '';
-                        infoCol.style.width     = '';
-                        return;
-                    }
-                    var layoutRect = bodyLayout.getBoundingClientRect();
-                    var colRect    = infoCol.getBoundingClientRect();
-                    var colNatural = bodyLayout.offsetTop + (infoCol.offsetTop - bodyLayout.offsetTop);
-
-                    /* How far the top of the layout is above the sticky point */
-                    var scrolledPast = NAVBAR_H - layoutRect.top;
-
-                    if (scrolledPast > 0) {
-                        /* Max translateY so the column never goes below the layout bottom */
-                        var maxShift = bodyLayout.offsetHeight - infoCol.offsetHeight;
-                        var shift    = Math.min(scrolledPast, maxShift > 0 ? maxShift : 0);
-                        infoCol.style.transform = 'translateY(' + shift + 'px)';
-                    } else {
-                        infoCol.style.transform = '';
-                    }
-                }
-
-                window.addEventListener('scroll', updateSticky, { passive: true });
-                window.addEventListener('resize', updateSticky, { passive: true });
-                updateSticky();
-            }
-
             /* ── Inquire Now button ── */
             var inquireBtn = document.getElementById('supInquireBtn');
             if (inquireBtn) {
