@@ -309,7 +309,6 @@ unset($upd);
                     <h2 class="svc-title">Our Services</h2>
                     <p class="svc-subtitle">Comprehensive solutions tailored to your needs.</p>
                     <div class="svc-meta">
-                        <span class="svc-counter" id="svcCounter">01 / <?php echo str_pad(count($services) ?: 1, 2, '0', STR_PAD_LEFT); ?></span>
                         <div class="svc-progress-bar">
                             <div class="svc-progress-fill" id="svcProgressFill"></div>
                         </div>
@@ -389,19 +388,19 @@ unset($upd);
                         <?php endforeach; ?>
                     <?php endif; ?>
 
-                </div><!-- /svc-track -->
-                </div><!-- /svc-viewport -->
+                </div>
+                </div>
 
                 <button class="svc-arrow-btn" id="svcBtnNext" aria-label="Next service">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-            </div><!-- /svc-carousel-wrap -->
+            </div>
 
-            <!-- Navigation dots -->
+            
             <div class="svc-dots" id="svcDots"></div>
 
-        </div><!-- /svc-sticky -->
-    </section><!-- /services -->
+        </div>
+    </section>
 
     <!-- ── Service Detail Modal ── -->
     <div id="svcModal" role="dialog" aria-modal="true" aria-labelledby="svcmTitle">
