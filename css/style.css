@@ -609,8 +609,102 @@ section.light-bg { background:var(--light-bg); }
 #contactModal textarea.form-control { min-height:110px; }
 #contactModal #contactSuccessBanner { display:none; background:#D4EDDA; color:#155724; border:1px solid #C3E6CB; border-radius:10px; padding:1rem 1.2rem; margin-bottom:1.2rem; align-items:center; gap:.75rem; font-weight:600; font-size:.95rem; }
 #contactModal #contactSuccessBanner.show { display:flex; animation:bannerIn .4s ease; }
-@media (max-width:768px) { .cm-box{flex-direction:column;max-height:95vh} .cm-left{flex:none} .cm-left-inner{padding:1.8rem 1.5rem} .cm-left-inner h3{font-size:1.3rem} .cm-info-list{display:none} .cm-right-inner{padding:1.8rem 1.5rem 1.5rem} .cm-row{grid-template-columns:1fr;gap:0} }
-@media (max-width:480px) { .cm-box{border-radius:14px 14px 0 0;align-self:flex-end;max-height:96vh} #contactModal{align-items:flex-end;padding:0} }
+/* ── Contact modal: tablet ── */
+@media (max-width:768px) {
+    /* Overlay: anchored to bottom, no side padding */
+    #contactModal {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    /* Sheet slides up from bottom edge */
+    .cm-box {
+        flex-direction: column;
+        width: 100%;
+        max-height: 90dvh;
+        border-radius: 20px 20px 0 0;
+        align-self: flex-end;
+        overflow: hidden;
+    }
+
+    /* ── Blue header: ultra-compact single row ── */
+    .cm-left {
+        flex: none;
+        min-height: unset;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+    }
+    .cm-left-inner {
+        padding: .75rem 1rem .75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+    .cm-left-logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .cm-left-inner h3 {
+        font-size: .9rem;
+        font-weight: 800;
+        margin: 0;
+        white-space: nowrap;
+    }
+    /* Hide everything else in the blue panel */
+    .cm-left-inner > p,
+    .cm-info-list { display: none; }
+
+    /* ── Form area: scrollable, compact ── */
+    .cm-right {
+        overflow-y: auto;
+        flex: 1;
+        -webkit-overflow-scrolling: touch;
+    }
+    .cm-right-inner {
+        padding: 1rem 1rem 1.25rem;
+    }
+
+    /* Compact heading */
+    .cm-right-inner h2   { font-size: 1.1rem; margin-top: 0; }
+    .cm-title-rule       { margin: .4rem 0 .85rem; }
+
+    /* Single-column rows, tight spacing */
+    .cm-row              { grid-template-columns: 1fr; gap: 0; }
+    .form-group          { margin-bottom: .75rem; }
+    .form-group label    { font-size: .8rem; margin-bottom: .3rem; }
+    .form-control        { padding: .6rem .85rem; font-size: .88rem; }
+    #contactModal textarea.form-control { min-height: 70px; }
+    .btn-submit          { padding: .7rem; font-size: .9rem; margin-top: .25rem; }
+
+    /* Close button — sits over the blue header on the right */
+    .cm-close {
+        top: .6rem;
+        right: .75rem;
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+        line-height: 30px;
+        background: rgba(255,255,255,.2);
+        border-color: rgba(255,255,255,.3);
+        color: #fff;
+    }
+    .cm-close:hover {
+        background: rgba(255,255,255,.35);
+        border-color: rgba(255,255,255,.5);
+        color: #fff;
+    }
+}
+
+/* ── Extra-small phones (≤ 390px) ── */
+@media (max-width:390px) {
+    .cm-box          { max-height: 92dvh; }
+    .cm-right-inner  { padding: .85rem .85rem 1.1rem; }
+    .form-group      { margin-bottom: .6rem; }
+    .form-control    { padding: .55rem .75rem; font-size: .85rem; }
+    #contactModal textarea.form-control { min-height: 60px; }
+}
 
 /* ── Service Modal ── */
 #svcModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:9999; align-items:center; justify-content:center; padding:1rem; }
@@ -764,51 +858,43 @@ body { overflow-x:hidden; }
     transition: transform .3s ease;
 }
 
-/* ── Carousel wrapper — true full-bleed, zero side padding ── */
+/* ── Carousel wrapper — full viewport width, arrows at edges ── */
 .svc-carousel-wrap {
     position: relative;
-    /* Break out of container to reach viewport edges */
-    width: 100vw;
+    /* Break out of any container padding to go full-width */
     margin-left: calc(-50vw + 50%);
-    margin-right: 0;
-    padding: 0;          /* zero padding — cards go wall to wall */
-    box-sizing: border-box;
+    margin-right: calc(-50vw + 50%);
+    padding: 0 56px;   /* space for the edge arrows */
 }
 
-/* ── Arrow buttons: float OVER the card strip at left & right ──
-   position:relative on .svc-carousel-wrap makes these absolute
-   children. They overlap the cards with z-index, take zero space. ── */
+/* Edge arrow buttons */
 .svc-arrow-btn {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 20;
+    top: 50%; transform: translateY(-50%);
+    z-index: 10;
     width: 40px; height: 40px; border-radius: 50%;
-    border: none;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    color: var(--text-dark);
+    border: 1.5px solid var(--border-color);
+    background: #fff; color: var(--text-dark);
     display: flex; align-items: center; justify-content: center;
     font-size: .88rem; cursor: pointer;
-    transition: background .22s, color .22s, transform .2s, box-shadow .2s;
-    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    transition: background .22s, border-color .22s, color .22s,
+                transform .2s, box-shadow .2s;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
 }
 .svc-arrow-btn:hover:not(:disabled) {
-    background: var(--primary-color); color: #fff;
-    transform: translateY(-50%) scale(1.08);
-    box-shadow: 0 6px 20px rgba(21,101,192,.35);
+    background: var(--primary-color); border-color: var(--primary-color); color: #fff;
+    transform: translateY(-50%) scale(1.06);
+    box-shadow: 0 4px 16px rgba(21,101,192,.3);
 }
-.svc-arrow-btn:disabled { opacity: .3; cursor: not-allowed; }
-/* Left edge / Right edge — small inset so they overlap the card corners */
-#svcBtnPrev { left:  12px; }
-#svcBtnNext { right: 12px; }
+.svc-arrow-btn:disabled { opacity: .32; cursor: not-allowed; }
+#svcBtnPrev { left: 8px; }
+#svcBtnNext { right: 8px; }
 
-/* ── The visible card strip — full width, no padding ── */
-.svc-viewport { overflow: hidden; width: 100%; }
+/* ── The visible card strip ── */
+.svc-viewport { overflow: hidden; }
 .svc-track {
-    display: flex; gap: 18px; align-items: flex-start;
-    padding: 1.4rem 0 6rem;   /* extra bottom padding for bridge arc drop */
+    display: flex; gap: 18px; align-items: center;
+    padding: 1.2rem 0 1.6rem;
     will-change: transform; transition: transform .0s;
 }
 
@@ -820,10 +906,9 @@ body { overflow-x:hidden; }
     cursor: pointer; border: 1.5px solid var(--border-color); background: #fff;
     transform-origin: bottom center;
     will-change: transform, opacity;
-    /* Default state (very far cards) */
-    transform: scale(.78) translateY(60px) rotate(-5deg); opacity: .25;
-    transition: transform .5s cubic-bezier(.22,.68,0,1.1),
-                opacity .5s ease, box-shadow .5s ease, border-color .35s;
+    transform: scale(.9) translateY(6px); opacity: .55;
+    transition: transform .45s cubic-bezier(.22,.68,0,1.1),
+                opacity .45s ease, box-shadow .45s ease, border-color .35s;
 }
 .svc-card::before {
     content: ''; position: absolute; inset: 0;
@@ -836,36 +921,16 @@ body { overflow-x:hidden; }
     z-index: 2; opacity: 0; transition: opacity .4s; pointer-events: none;
 }
 .svc-card:hover::after { opacity: 1; }
-
-/* ── Bridge / arc transforms — each step drops progressively more ── */
-
-/* Center card: peak of the bridge — tallest, fully visible */
 .svc-card.svc-active {
-    transform: scale(1.06) translateY(-12px); opacity: 1;
-    box-shadow: 0 24px 60px rgba(21,101,192,.18), 0 8px 24px rgba(0,0,0,.08),
+    transform: scale(1.04) translateY(-8px); opacity: 1;
+    box-shadow: 0 20px 50px rgba(21,101,192,.16), 0 6px 20px rgba(0,0,0,.07),
                 0 0 0 1.5px rgba(21,101,192,.28);
     border-color: rgba(21,101,192,.28); z-index: 10;
 }
-
-/* 1 step from center */
-.svc-card.svc-d1                { transform: scale(.96) translateY(12px) rotate(-2deg);  opacity: .82; }
-.svc-card.svc-d1.svc-right      { transform: scale(.96) translateY(12px) rotate(2deg);   opacity: .82; }
-
-/* 2 steps from center */
-.svc-card.svc-d2                { transform: scale(.88) translateY(34px) rotate(-4deg);  opacity: .58; }
-.svc-card.svc-d2.svc-right      { transform: scale(.88) translateY(34px) rotate(4deg);   opacity: .58; }
-
-/* 3 steps from center */
-.svc-card.svc-d3                { transform: scale(.80) translateY(58px) rotate(-6deg);  opacity: .35; }
-.svc-card.svc-d3.svc-right      { transform: scale(.80) translateY(58px) rotate(6deg);   opacity: .35; }
-
-/* 4+ steps from center */
-.svc-card.svc-d4                { transform: scale(.74) translateY(78px) rotate(-8deg);  opacity: .18; }
-.svc-card.svc-d4.svc-right      { transform: scale(.74) translateY(78px) rotate(8deg);   opacity: .18; }
-
-/* Keep legacy aliases so any external code still works */
-.svc-card.svc-near  { /* handled by svc-d1 */ }
-.svc-card.svc-far   { /* handled by svc-d2/d3/d4 */ }
+.svc-card.svc-near       { transform: scale(.96) translateY(2px) rotate(-1deg); opacity: .78; }
+.svc-card.svc-near.svc-right { transform: scale(.96) translateY(2px) rotate(1deg); }
+.svc-card.svc-far        { transform: scale(.88) translateY(8px) rotate(-2deg); opacity: .4; }
+.svc-card.svc-far.svc-right  { transform: scale(.88) translateY(8px) rotate(2deg); }
 
 .svc-card-img { position: absolute; inset: 0; z-index: 0; }
 .svc-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
@@ -908,41 +973,15 @@ body { overflow-x:hidden; }
 .svc-arrows { display: none; }
 
 @media (max-width: 768px) {
-    .svc-carousel-wrap { padding: 0; }
+    .svc-carousel-wrap { padding: 0 40px; }
     #svcBtnPrev, #svcBtnNext { width: 34px; height: 34px; font-size: .8rem; }
-    #svcBtnPrev { left:  8px; }
-    #svcBtnNext { right: 8px; }
     .svc-card { width: 220px; height: 300px; }
-    .svc-header { padding-right: 0; }
+    .svc-header { flex-direction: column; align-items: flex-start; gap: .75rem; }
 }
 @media (max-width: 480px) {
-    .svc-carousel-wrap { padding: 0; }
-    #svcBtnPrev { left:  6px; }
-    #svcBtnNext { right: 6px; }
+    .svc-carousel-wrap { padding: 0 36px; }
     .svc-card { width: 185px; height: 260px; }
     .svc-card-name { font-size: .98rem; }
-    .svc-header { padding-right: 0; }
-}
-
-/* ── Touch swipe hint on mobile ── */
-@media (max-width: 768px) {
-    .svc-swipe-hint {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: .4rem;
-        font-size: .72rem;
-        font-weight: 700;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-        color: var(--text-light);
-        opacity: .6;
-        padding: .4rem 0 0;
-    }
-    .svc-swipe-hint i { font-size: .8rem; }
-}
-@media (min-width: 769px) {
-    .svc-swipe-hint { display: none; }
 }
 
 /* ════════════════════════════════════════════════════════════════

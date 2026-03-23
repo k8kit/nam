@@ -396,12 +396,6 @@ unset($upd);
             </div><!-- /.svc-carousel-wrap -->
 
             <div class="svc-dots" id="svcDots"></div>
-
-            <!-- Mobile swipe hint -->
-            <p class="svc-swipe-hint">
-                <i class="fas fa-hand-pointer"></i> Swipe to explore
-            </p>
-
         </div>
     </section>
 
