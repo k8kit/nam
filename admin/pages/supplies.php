@@ -12,13 +12,7 @@ $supplies_result = $conn->query("
 $supplies = $supplies_result ? $supplies_result->fetch_all(MYSQLI_ASSOC) : [];
 displayAlert();
 
-// ── Pagination ──────────────────────────────────────────────────────────────
-$per_page    = 10;
 $total_items = count($supplies);
-$total_pages = max(1, ceil($total_items / $per_page));
-$cur_page    = max(1, min($total_pages, intval($_GET['supplies_page'] ?? 1)));
-$offset      = ($cur_page - 1) * $per_page;
-$page_items  = array_slice($supplies, $offset, $per_page);
 ?>
 
 <script>
@@ -62,7 +56,6 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
 .sup-search-wrap:focus-within { border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(21,101,192,.1); }
 .sup-search-wrap i { color:#9CA3AF; font-size:.85rem; }
 .sup-search-wrap input { border:none; outline:none; font-size:.84rem; color:#374151; width:100%; font-family:inherit; background:transparent; }
-#supNoResults { display:none; }
 #supImgPreview img { width:80px; height:80px; object-fit:cover; border-radius:8px; border:2px solid var(--primary-color); display:block; }
 </style>
 
@@ -74,7 +67,7 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
         <p style="margin:.2rem 0 0;font-size:.83rem;color:var(--text-light);"><?php echo $total_items; ?> total supplies across <?php echo count($categories); ?> categories</p>
     </div>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
-        <div class="sup-search-wrap"><i class="fas fa-search"></i><input type="text" id="supSearchInput" placeholder="Search supplies…" oninput="filterSupplies(this.value)"></div>
+        <div class="sup-search-wrap"><i class="fas fa-search"></i><input type="text" id="supSearchInput" placeholder="Search supplies…" oninput="applyFilters()"></div>
         <button class="btn-add" style="background:#6A1B9A;" onclick="openAddCategoryModal()"><i class="fas fa-tag"></i> Add Category</button>
         <button class="btn-add" onclick="openAddSupplyModal()"><i class="fas fa-plus"></i> Add Supply</button>
     </div>
@@ -93,14 +86,14 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
     <button class="sup-tab" data-cat="categories" onclick="switchTab(this,'categories')" style="margin-left:auto;"><i class="fas fa-folder"></i> Categories</button>
 </div>
 
-<!-- Supplies Table -->
+<!-- Supplies Table (ALL rows rendered, JS handles filtering + pagination) -->
 <div id="suppliesView">
     <div class="admin-card">
         <?php if (!empty($supplies)): ?>
         <table class="admin-table" id="suppliesTable">
             <thead><tr><th>Order</th><th>Supply</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>
-                <?php foreach ($page_items as $sup): ?>
+                <?php foreach ($supplies as $sup): ?>
                 <tr data-cat="<?php echo $sup['category_id']; ?>" data-search="<?php echo strtolower(htmlspecialchars($sup['supply_name'].' '.$sup['description'].' '.$sup['category_name'])); ?>">
                     <td style="font-size:.85rem;text-align:center;"><?php echo $sup['sort_order']; ?></td>
                     <td><span style="font-weight:700;font-size:.9rem;"><?php echo htmlspecialchars($sup['supply_name']); ?></span></td>
@@ -119,30 +112,21 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
                     </td>
                 </tr>
                 <?php endforeach; ?>
-                <tr id="supNoResults"><td colspan="6" style="text-align:center;color:var(--text-light);padding:2.5rem;"><i class="fas fa-search" style="margin-right:.4rem;"></i> No supplies match your search.</td></tr>
             </tbody>
         </table>
 
-        <?php if ($total_pages > 1): ?>
-        <div class="adm-pagination">
-            <div class="adm-pag-info">
-                Showing <strong><?php echo $offset+1; ?>–<?php echo min($offset+$per_page,$total_items); ?></strong>
-                of <strong><?php echo $total_items; ?></strong> supplies
-            </div>
-            <div class="adm-pag-btns">
-                <a href="?page=supplies&supplies_page=<?php echo max(1,$cur_page-1); ?>" class="adm-pag-btn <?php echo $cur_page<=1?'disabled':''; ?>"><i class="fas fa-chevron-left"></i></a>
-                <?php
-                $range=2; $start=max(1,$cur_page-$range); $end=min($total_pages,$cur_page+$range);
-                if($start>1) echo '<a href="?page=supplies&supplies_page=1" class="adm-pag-btn">1</a>';
-                if($start>2) echo '<span style="padding:0 .25rem;color:var(--text-light);">…</span>';
-                for($p=$start;$p<=$end;$p++) echo '<a href="?page=supplies&supplies_page='.$p.'" class="adm-pag-btn'.($p===$cur_page?' active':'').'">'.$p.'</a>';
-                if($end<$total_pages-1) echo '<span style="padding:0 .25rem;color:var(--text-light);">…</span>';
-                if($end<$total_pages) echo '<a href="?page=supplies&supplies_page='.$total_pages.'" class="adm-pag-btn">'.$total_pages.'</a>';
-                ?>
-                <a href="?page=supplies&supplies_page=<?php echo min($total_pages,$cur_page+1); ?>" class="adm-pag-btn <?php echo $cur_page>=$total_pages?'disabled':''; ?>"><i class="fas fa-chevron-right"></i></a>
-            </div>
+        <!-- JS-driven pagination UI -->
+        <div class="adm-pagination" id="supPaginationBar" style="display:none;">
+            <div class="adm-pag-info" id="supPagInfo"></div>
+            <div class="adm-pag-btns" id="supPagBtns"></div>
         </div>
-        <?php endif; ?>
+
+        <tr id="supNoResults" style="display:none;">
+            <td colspan="6" style="text-align:center;color:var(--text-light);padding:2.5rem;">
+                <i class="fas fa-search" style="margin-right:.4rem;"></i> No supplies match your search.
+            </td>
+        </tr>
+
         <?php else: ?>
         <div style="text-align:center;color:var(--text-light);padding:3rem;">
             <i class="fas fa-boxes" style="font-size:3rem;margin-bottom:1rem;display:block;opacity:.4;"></i>
@@ -222,29 +206,183 @@ var UPLOADS_URL = '<?php echo UPLOADS_URL; ?>';
 </div>
 
 <script>
-function switchTab(btn, cat) {
-    document.querySelectorAll('.sup-tab').forEach(function(t){t.classList.remove('active');});
-    btn.classList.add('active');
-    var supView=document.getElementById('suppliesView'),catView=document.getElementById('categoriesView');
-    if(cat==='categories'){supView.style.display='none';catView.style.display='';return;}
-    catView.style.display='none';supView.style.display='';
-    var rows=document.querySelectorAll('#suppliesTable tbody tr:not(#supNoResults)'),visible=0;
-    rows.forEach(function(r){var show=(cat==='all')||(r.getAttribute('data-cat')===String(cat));r.style.display=show?'':'none';if(show)visible++;});
-    document.getElementById('supNoResults').style.display=visible===0?'':'none';
-}
-function filterSupplies(q){q=q.toLowerCase().trim();var rows=document.querySelectorAll('#suppliesTable tbody tr:not(#supNoResults)'),visible=0;rows.forEach(function(r){var matches=q===''||(r.getAttribute('data-search')||'').includes(q);r.style.display=matches?'':'none';if(matches)visible++;});document.getElementById('supNoResults').style.display=visible===0?'':'none';}
+/* ════════════════════════════════════════════════
+   PAGINATION + FILTER — all JS-driven
+   No PHP pagination: all rows are in the DOM,
+   JS filters by category + search, then paginates
+   the matching subset.
+════════════════════════════════════════════════ */
+var SUP_PER_PAGE   = 10;
+var _currentCat    = 'all';
+var _currentPage   = 1;
+var _matchingRows  = [];
 
+function getAllRows() {
+    return Array.from(document.querySelectorAll('#suppliesTable tbody tr'));
+}
+
+function applyFilters() {
+    var query   = (document.getElementById('supSearchInput').value || '').toLowerCase().trim();
+    var allRows = getAllRows();
+
+    /* Build the list of rows that pass BOTH category + search filters */
+    _matchingRows = allRows.filter(function(row) {
+        var catMatch    = (_currentCat === 'all') || (row.getAttribute('data-cat') === String(_currentCat));
+        var searchMatch = (query === '') || ((row.getAttribute('data-search') || '').includes(query));
+        return catMatch && searchMatch;
+    });
+
+    /* Reset to page 1 whenever filters change (called from search input directly) */
+    /* NOTE: switchTab() resets page itself before calling applyFilters */
+    renderPage();
+}
+
+function renderPage() {
+    var total      = _matchingRows.length;
+    var totalPages = Math.max(1, Math.ceil(total / SUP_PER_PAGE));
+
+    /* Clamp current page */
+    if (_currentPage > totalPages) _currentPage = totalPages;
+    if (_currentPage < 1)          _currentPage = 1;
+
+    var start = (_currentPage - 1) * SUP_PER_PAGE;
+    var end   = start + SUP_PER_PAGE;
+
+    /* Hide ALL rows first */
+    getAllRows().forEach(function(r) { r.style.display = 'none'; });
+
+    /* Show only the rows on the current page */
+    _matchingRows.forEach(function(r, i) {
+        r.style.display = (i >= start && i < end) ? '' : 'none';
+    });
+
+    /* No-results row */
+    var noRes = document.getElementById('supNoResults');
+    if (noRes) noRes.style.display = (total === 0) ? '' : 'none';
+
+    /* Pagination bar */
+    var bar      = document.getElementById('supPaginationBar');
+    var infoEl   = document.getElementById('supPagInfo');
+    var btnsEl   = document.getElementById('supPagBtns');
+
+    if (!bar) return;
+
+    if (total === 0) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    bar.style.display = 'flex';
+
+    var showFrom = start + 1;
+    var showTo   = Math.min(end, total);
+    infoEl.innerHTML = 'Showing <strong>' + showFrom + '–' + showTo + '</strong> of <strong>' + total + '</strong> supplies';
+
+    /* Build page buttons */
+    btnsEl.innerHTML = '';
+
+    /* Prev */
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'adm-pag-btn' + (_currentPage <= 1 ? ' disabled' : '');
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevBtn.disabled  = _currentPage <= 1;
+    prevBtn.onclick   = function() { goToPage(_currentPage - 1); };
+    btnsEl.appendChild(prevBtn);
+
+    /* Page number buttons */
+    var range = 2;
+    var pStart = Math.max(1, _currentPage - range);
+    var pEnd   = Math.min(totalPages, _currentPage + range);
+
+    if (pStart > 1) {
+        btnsEl.appendChild(makePageBtn(1));
+        if (pStart > 2) {
+            var ellipsis = document.createElement('span');
+            ellipsis.style.cssText = 'padding:0 .25rem;color:var(--text-light);';
+            ellipsis.textContent = '…';
+            btnsEl.appendChild(ellipsis);
+        }
+    }
+
+    for (var p = pStart; p <= pEnd; p++) {
+        btnsEl.appendChild(makePageBtn(p));
+    }
+
+    if (pEnd < totalPages - 1) {
+        var ellipsis2 = document.createElement('span');
+        ellipsis2.style.cssText = 'padding:0 .25rem;color:var(--text-light);';
+        ellipsis2.textContent = '…';
+        btnsEl.appendChild(ellipsis2);
+    }
+    if (pEnd < totalPages) {
+        btnsEl.appendChild(makePageBtn(totalPages));
+    }
+
+    /* Next */
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'adm-pag-btn' + (_currentPage >= totalPages ? ' disabled' : '');
+    nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextBtn.disabled  = _currentPage >= totalPages;
+    nextBtn.onclick   = function() { goToPage(_currentPage + 1); };
+    btnsEl.appendChild(nextBtn);
+}
+
+function makePageBtn(p) {
+    var btn = document.createElement('button');
+    btn.className   = 'adm-pag-btn' + (p === _currentPage ? ' active' : '');
+    btn.textContent = p;
+    btn.onclick     = function() { goToPage(p); };
+    return btn;
+}
+
+function goToPage(p) {
+    _currentPage = p;
+    renderPage();
+}
+
+/* Tab switching */
+function switchTab(btn, cat) {
+    document.querySelectorAll('.sup-tab').forEach(function(t){ t.classList.remove('active'); });
+    btn.classList.add('active');
+
+    var supView = document.getElementById('suppliesView');
+    var catView = document.getElementById('categoriesView');
+
+    if (cat === 'categories') {
+        supView.style.display = 'none';
+        catView.style.display = '';
+        return;
+    }
+
+    catView.style.display = 'none';
+    supView.style.display = '';
+
+    _currentCat  = cat;
+    _currentPage = 1;   /* reset to page 1 on every tab switch */
+    applyFilters();
+}
+
+/* Run on load */
+(function init() {
+    _currentPage = 1;
+    _currentCat  = 'all';
+    applyFilters();
+}());
+
+/* ─── Supply modal ─── */
 function openAddSupplyModal(){document.getElementById('supplyModalTitle').innerText='Add New Supply';document.getElementById('supplyForm').reset();document.getElementById('supplyId').value='';document.getElementById('supImgPreview').innerHTML='';document.getElementById('supplySubmitBtn').disabled=false;document.getElementById('supplySubmitBtn').innerHTML='Save Supply';document.getElementById('supplyModal').classList.add('active');}
 function closeSupplyModal(){document.getElementById('supplyModal').classList.remove('active');}
 function previewSupplyImg(input){var preview=document.getElementById('supImgPreview');preview.innerHTML='';if(input.files&&input.files[0]){var reader=new FileReader();reader.onload=function(e){var img=document.createElement('img');img.src=e.target.result;preview.appendChild(img);};reader.readAsDataURL(input.files[0]);}}
 function editSupply(id){fetch('../backend/get_supply.php?id='+id).then(function(r){return r.json();}).then(function(data){if(!data.success){alert('Could not load supply.');return;}var s=data.data;document.getElementById('supplyModalTitle').innerText='Edit Supply';document.getElementById('supplyId').value=s.id;document.getElementById('supCategory').value=s.category_id;document.getElementById('supName').value=s.supply_name;document.getElementById('supDescription').value=s.description||'';document.getElementById('supOrder').value=s.sort_order;document.getElementById('supActive').checked=s.is_active==1;document.getElementById('supplySubmitBtn').disabled=false;document.getElementById('supplySubmitBtn').innerHTML='Save Supply';var preview=document.getElementById('supImgPreview');preview.innerHTML='';if(s.image_path){var img=document.createElement('img');img.src=UPLOADS_URL+s.image_path;img.alt=s.supply_name;img.onerror=function(){preview.innerHTML='';};preview.appendChild(img);}document.getElementById('supplyModal').classList.add('active');});}
 function submitSupplyForm(e){e.preventDefault();var btn=document.getElementById('supplySubmitBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…';fetch('../backend/save_supply.php',{method:'POST',body:new FormData(document.getElementById('supplyForm'))}).then(function(r){return r.json();}).then(function(data){if(data.success){window.location.href='dashboard.php?page=supplies';}else{alert('Error: '+data.message);btn.disabled=false;btn.innerHTML='Save Supply';}}).catch(function(){alert('Network error.');btn.disabled=false;btn.innerHTML='Save Supply';});}
 
+/* ─── Category modal ─── */
 function openAddCategoryModal(){document.getElementById('categoryModalTitle').innerText='Add Category';document.getElementById('categoryForm').reset();document.getElementById('categoryId').value='';document.getElementById('categoryModal').classList.add('active');}
 function closeCategoryModal(){document.getElementById('categoryModal').classList.remove('active');}
 function editCategory(id){fetch('../backend/get_category.php?id='+id).then(function(r){return r.json();}).then(function(data){if(!data.success){alert('Could not load category.');return;}var c=data.data;document.getElementById('categoryModalTitle').innerText='Edit Category';document.getElementById('categoryId').value=c.id;document.getElementById('catName').value=c.category_name;document.getElementById('catDesc').value=c.description||'';document.getElementById('catOrder').value=c.sort_order;document.getElementById('catActive').checked=c.is_active==1;document.getElementById('categoryModal').classList.add('active');});}
 function submitCategoryForm(e){e.preventDefault();fetch('../backend/save_category.php',{method:'POST',body:new FormData(document.getElementById('categoryForm'))}).then(function(r){return r.json();}).then(function(data){if(data.success){window.location.href='dashboard.php?page=supplies';}else{alert('Error: '+data.message);}});}
 
+/* ─── Delete confirms ─── */
 var _delSupId=null,_delCatId=null;
 function openSupplyDeleteConfirm(id,name){_delSupId=id;document.getElementById('delSupName').textContent='"'+name+'"';document.getElementById('supplyDeleteConfirm').classList.add('active');}
 function closeSupplyDeleteConfirm(){document.getElementById('supplyDeleteConfirm').classList.remove('active');_delSupId=null;}
