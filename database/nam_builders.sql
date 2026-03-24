@@ -55,16 +55,6 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 INSERT INTO admin_users (username, password, email) VALUES 
 ('admin', '$2y$10$Tbgwlzktw7tTH3MLaZqeqOVjdw.LqqTMzuSo0AiItTCw7Mtv0uuIy', 'admin@nambuilders.com');
 
--- Insert sample services
-INSERT INTO services (service_name, description, sort_order, is_active) VALUES
-('General Construction', 'Complete construction solutions for residential, commercial, and industrial projects with expert project management.', 1, 1),
-('Renovation & Remodeling', 'Transform your space with our professional renovation and remodeling services tailored to your needs.', 2, 1),
-('Electrical Systems', 'Expert electrical installation, maintenance, and repair services ensuring safety and efficiency.', 3, 1),
-('Fire Protection', 'Comprehensive fire protection systems installation and maintenance to keep your property safe.', 4, 1),
-('Steel Fabrication', 'Custom steel fabrication services for structural and architectural applications.', 5, 1),
-('Office Fit-Outs', 'Complete office design and fit-out solutions creating productive work environments.', 6, 1),
-('Building Maintenance', 'Regular maintenance services to keep your building in optimal condition year-round.', 7, 1),
-('Supply Services', 'Construction materials, electrical components, PPE, and office supplies delivered on time.', 8, 1);
 
 -- Service Images Table (multiple images per service)
 CREATE TABLE IF NOT EXISTS service_images (
