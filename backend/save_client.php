@@ -9,30 +9,17 @@ requireLogin();
 $response = ['success' => false, 'message' => ''];
 
 try {
-    // Get raw POST data - check if it exists first before sanitizing
     $client_id   = isset($_POST['client_id']) && $_POST['client_id'] !== '' ? intval($_POST['client_id']) : null;
-    
-    // Debug: Log raw POST data
-    error_log('[DEBUG] Raw POST client_name: ' . (isset($_POST['client_name']) ? $_POST['client_name'] : 'NOT SET'));
-    
-    // Get and validate client_name
-    if (!isset($_POST['client_name']) || $_POST['client_name'] === '') {
-        throw new Exception('Client name is required.');
-    }
-    
-    $client_name = sanitize($_POST['client_name']);
-    
-    // Debug: Log sanitized value
-    error_log('[DEBUG] Sanitized client_name: ' . $client_name);
-    error_log('[DEBUG] Sanitized client_name is empty? ' . (empty($client_name) ? 'YES' : 'NO'));
-    
-    $description = isset($_POST['description']) ? sanitize($_POST['description']) : '';
+    $client_name = isset($_POST['client_name']) ? trim($_POST['client_name']) : '';
+    $description = isset($_POST['description']) ? trim($_POST['description']) : '';
     $sort_order  = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
     $is_active   = isset($_POST['is_active']) && $_POST['is_active'] !== '' ? 1 : 0;
     $image_path  = null;
 
-    // Validate that client_name is not empty after sanitization
-    if (empty($client_name)) throw new Exception('Client name cannot be empty or contain only special characters.');
+    // Validate client_name is not empty
+    if (empty($client_name)) {
+        throw new Exception('Client name is required.');
+    }
 
     // Handle image upload
     if (isset($_FILES['client_image']) && $_FILES['client_image']['size'] > 0) {
@@ -40,6 +27,10 @@ try {
         if (!$upload_result['success']) throw new Exception($upload_result['error']);
         $image_path = 'clients/' . $upload_result['filename'];
     }
+
+    // Sanitize before database operations
+    $client_name_clean = sanitize($client_name);
+    $description_clean = sanitize($description);
 
     if ($client_id) {
         $old_client = getClientById($conn, $client_id);
@@ -50,9 +41,9 @@ try {
         if (!$image_path) $image_path = $old_client['image_path'];
 
         $stmt = $conn->prepare("UPDATE clients SET client_name=?, description=?, image_path=?, sort_order=?, is_active=?, updated_at=NOW() WHERE id=?");
-        $stmt->bind_param("sssiii", $client_name, $description, $image_path, $sort_order, $is_active, $client_id);
+        $stmt->bind_param("sssiii", $client_name_clean, $description_clean, $image_path, $sort_order, $is_active, $client_id);
         if ($stmt->execute()) {
-            setAlert('Client "' . $client_name . '" updated successfully.', 'success');
+            setAlert('Client "' . $client_name_clean . '" updated successfully.', 'success');
         } else {
             throw new Exception($stmt->error);
         }
@@ -60,9 +51,9 @@ try {
     } else {
         if (!$image_path) throw new Exception('Client image is required.');
         $stmt = $conn->prepare("INSERT INTO clients (client_name, description, image_path, sort_order, is_active) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssii", $client_name, $description, $image_path, $sort_order, $is_active);
+        $stmt->bind_param("sssii", $client_name_clean, $description_clean, $image_path, $sort_order, $is_active);
         if ($stmt->execute()) {
-            setAlert('Client "' . $client_name . '" added successfully.', 'success');
+            setAlert('Client "' . $client_name_clean . '" added successfully.', 'success');
         } else {
             throw new Exception($stmt->error);
         }
