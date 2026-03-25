@@ -10,11 +10,11 @@ $response = ['success' => false, 'message' => ''];
 
 try {
     $supply_id   = isset($_POST['supply_id']) && $_POST['supply_id'] !== '' ? intval($_POST['supply_id']) : null;
-    $category_id = intval($_POST['category_id'] ?? 0);
-    $supply_name = sanitize($_POST['supply_name'] ?? '');
-    $description = sanitize($_POST['description'] ?? '');
-    $sort_order  = intval($_POST['sort_order']    ?? 0);
-    $is_active   = isset($_POST['is_active'])     ? 1 : 0;
+    $category_id = isset($_POST['category_id']) ? intval($_POST['category_id']) : 0;
+    $supply_name = isset($_POST['supply_name']) ? trim(sanitize($_POST['supply_name'])) : '';
+    $description = isset($_POST['description']) ? trim(sanitize($_POST['description'])) : '';
+    $sort_order  = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
+    $is_active   = isset($_POST['is_active']) && $_POST['is_active'] !== '' ? 1 : 0;
     $image_path  = null;
 
     if (empty($supply_name)) throw new Exception('Supply name is required.');

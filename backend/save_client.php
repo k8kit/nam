@@ -1,4 +1,7 @@
 <?php
+ob_start();
+header('Content-Type: application/json');
+
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 requireLogin();
@@ -6,13 +9,15 @@ requireLogin();
 $response = ['success' => false, 'message' => ''];
 
 try {
-    $client_id   = isset($_POST['client_id']) && !empty($_POST['client_id']) ? intval($_POST['client_id']) : null;
-    $client_name = sanitize($_POST['client_name'] ?? '');
-    $description = sanitize($_POST['description'] ?? '');
-    $sort_order  = intval($_POST['sort_order'] ?? 0);
-    $is_active   = isset($_POST['is_active']) ? 1 : 0;
+    // Get raw POST data first for debugging
+    $client_id   = isset($_POST['client_id']) && $_POST['client_id'] !== '' ? intval($_POST['client_id']) : null;
+    $client_name = isset($_POST['client_name']) ? trim(sanitize($_POST['client_name'])) : '';
+    $description = isset($_POST['description']) ? sanitize($_POST['description']) : '';
+    $sort_order  = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
+    $is_active   = isset($_POST['is_active']) && $_POST['is_active'] !== '' ? 1 : 0;
     $image_path  = null;
 
+    // Validate client name
     if (empty($client_name)) throw new Exception('Client name is required.');
 
     // Handle image upload
@@ -57,5 +62,5 @@ try {
     $response['message'] = $e->getMessage();
 }
 
-header('Content-Type: application/json');
+ob_end_clean();
 echo json_encode($response);

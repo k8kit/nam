@@ -1,4 +1,7 @@
 <?php
+ob_start();
+header('Content-Type: application/json');
+
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 requireLogin();
@@ -7,10 +10,10 @@ $response = ['success' => false, 'message' => ''];
 
 try {
     $category_id   = isset($_POST['category_id']) && $_POST['category_id'] !== '' ? intval($_POST['category_id']) : null;
-    $category_name = sanitize($_POST['category_name'] ?? '');
-    $description   = sanitize($_POST['description']   ?? '');
-    $sort_order    = intval($_POST['sort_order'] ?? 0);
-    $is_active     = isset($_POST['is_active']) ? 1 : 0;
+    $category_name = isset($_POST['category_name']) ? trim(sanitize($_POST['category_name'])) : '';
+    $description   = isset($_POST['description']) ? trim(sanitize($_POST['description'])) : '';
+    $sort_order    = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
+    $is_active     = isset($_POST['is_active']) && $_POST['is_active'] !== '' ? 1 : 0;
 
     if (empty($category_name)) throw new Exception('Category name is required.');
 
@@ -41,5 +44,5 @@ try {
     $response['message'] = $e->getMessage();
 }
 
-header('Content-Type: application/json');
+ob_end_clean();
 echo json_encode($response);

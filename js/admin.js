@@ -195,7 +195,17 @@ function editClient(id) {
 function submitClientForm(event) {
     event.preventDefault();
 
-    const formData = new FormData(document.getElementById('clientForm'));
+    const form = document.getElementById('clientForm');
+    const clientName = document.getElementById('clientName').value.trim();
+
+    if (!clientName) {
+        showToast('Please fill in the Client Name field.', 'danger');
+        return;
+    }
+
+    const formData = new FormData(form);
+    // Ensure client_name is properly included
+    formData.set('client_name', clientName);
 
     fetch('../backend/save_client.php', { method: 'POST', body: formData })
         .then(r => r.json())
@@ -203,8 +213,11 @@ function submitClientForm(event) {
             if (data.success) {
                 window.location.href = 'dashboard.php?page=clients';
             } else {
-                alert(`Error: ${data.message}`);
+                showToast(`Error: ${data.message}`, 'danger');
             }
+        })
+        .catch(err => {
+            showToast(`Network error: ${err.message}`, 'danger');
         });
 }
 
@@ -381,7 +394,24 @@ function deleteServiceImage(imgId, wrapperEl) {
 function submitServiceForm(event) {
     event.preventDefault();
 
-    const formData = new FormData(document.getElementById('serviceForm'));
+    const form = document.getElementById('serviceForm');
+    const serviceName = document.getElementById('serviceName').value.trim();
+    const serviceDescription = document.getElementById('serviceDescription').value.trim();
+
+    if (!serviceName) {
+        showToast('Please fill in the Service Name field.', 'danger');
+        return;
+    }
+
+    if (!serviceDescription) {
+        showToast('Please fill in the Description field.', 'danger');
+        return;
+    }
+
+    const formData = new FormData(form);
+    // Ensure fields are properly included
+    formData.set('service_name', serviceName);
+    formData.set('description', serviceDescription);
 
     fetch('../backend/save_service.php', { method: 'POST', body: formData })
         .then(r => r.json())
@@ -391,6 +421,9 @@ function submitServiceForm(event) {
             } else {
                 showToast(data.message, 'danger');
             }
+        })
+        .catch(err => {
+            showToast(`Network error: ${err.message}`, 'danger');
         });
 }
 

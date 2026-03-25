@@ -1,4 +1,7 @@
 <?php
+ob_start();
+header('Content-Type: application/json');
+
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 requireLogin();
@@ -6,11 +9,11 @@ requireLogin();
 $response = ['success' => false, 'message' => ''];
 
 try {
-    $service_id   = isset($_POST['service_id']) && !empty($_POST['service_id']) ? intval($_POST['service_id']) : null;
-    $service_name = sanitize($_POST['service_name'] ?? '');
-    $description  = sanitize($_POST['description']  ?? '');
-    $sort_order   = intval($_POST['sort_order']      ?? 0);
-    $is_active    = isset($_POST['is_active'])       ? 1 : 0;
+    $service_id   = isset($_POST['service_id']) && $_POST['service_id'] !== '' ? intval($_POST['service_id']) : null;
+    $service_name = isset($_POST['service_name']) ? trim(sanitize($_POST['service_name'])) : '';
+    $description  = isset($_POST['description']) ? trim(sanitize($_POST['description'])) : '';
+    $sort_order   = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
+    $is_active    = isset($_POST['is_active']) && $_POST['is_active'] !== '' ? 1 : 0;
 
     if (empty($service_name)) throw new Exception('Service name is required.');
     if (empty($description))  throw new Exception('Service description is required.');
@@ -75,5 +78,5 @@ try {
     $response['message'] = $e->getMessage();
 }
 
-header('Content-Type: application/json');
+ob_end_clean();
 echo json_encode($response);
