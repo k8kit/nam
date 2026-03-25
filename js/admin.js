@@ -196,20 +196,41 @@ function submitClientForm(event) {
     event.preventDefault();
 
     const form = document.getElementById('clientForm');
+    const clientId = document.getElementById('clientId').value.trim();
     const clientName = document.getElementById('clientName').value.trim();
+    const clientImageInput = document.getElementById('clientImage');
+    
+    console.log("[v0] Client ID:", clientId);
+    console.log("[v0] Client Name:", clientName);
+    console.log("[v0] Has image file:", clientImageInput.files.length > 0);
 
+    // Validate client name
     if (!clientName) {
         showToast('Please fill in the Client Name field.', 'danger');
         return;
     }
 
+    // For NEW clients, image is required
+    if (!clientId && clientImageInput.files.length === 0) {
+        showToast('Please upload a client logo/image.', 'danger');
+        return;
+    }
+
     const formData = new FormData(form);
+    
+    // Debug: Log FormData contents
+    console.log("[v0] FormData client_name before set:", formData.get('client_name'));
+    console.log("[v0] FormData client_id:", formData.get('client_id'));
+    
     // Ensure client_name is properly included
     formData.set('client_name', clientName);
+    
+    console.log("[v0] FormData client_name after set:", formData.get('client_name'));
 
     fetch('../backend/save_client.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
+            console.log("[v0] Response:", data);
             if (data.success) {
                 window.location.href = 'dashboard.php?page=clients';
             } else {
@@ -217,6 +238,7 @@ function submitClientForm(event) {
             }
         })
         .catch(err => {
+            console.log("[v0] Fetch error:", err);
             showToast(`Network error: ${err.message}`, 'danger');
         });
 }

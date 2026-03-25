@@ -9,16 +9,30 @@ requireLogin();
 $response = ['success' => false, 'message' => ''];
 
 try {
-    // Get raw POST data first for debugging
+    // Get raw POST data - check if it exists first before sanitizing
     $client_id   = isset($_POST['client_id']) && $_POST['client_id'] !== '' ? intval($_POST['client_id']) : null;
-    $client_name = isset($_POST['client_name']) ? trim(sanitize($_POST['client_name'])) : '';
+    
+    // Debug: Log raw POST data
+    error_log('[DEBUG] Raw POST client_name: ' . (isset($_POST['client_name']) ? $_POST['client_name'] : 'NOT SET'));
+    
+    // Get and validate client_name
+    if (!isset($_POST['client_name']) || $_POST['client_name'] === '') {
+        throw new Exception('Client name is required.');
+    }
+    
+    $client_name = sanitize($_POST['client_name']);
+    
+    // Debug: Log sanitized value
+    error_log('[DEBUG] Sanitized client_name: ' . $client_name);
+    error_log('[DEBUG] Sanitized client_name is empty? ' . (empty($client_name) ? 'YES' : 'NO'));
+    
     $description = isset($_POST['description']) ? sanitize($_POST['description']) : '';
     $sort_order  = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
     $is_active   = isset($_POST['is_active']) && $_POST['is_active'] !== '' ? 1 : 0;
     $image_path  = null;
 
-    // Validate client name
-    if (empty($client_name)) throw new Exception('Client name is required.');
+    // Validate that client_name is not empty after sanitization
+    if (empty($client_name)) throw new Exception('Client name cannot be empty or contain only special characters.');
 
     // Handle image upload
     if (isset($_FILES['client_image']) && $_FILES['client_image']['size'] > 0) {
