@@ -525,15 +525,27 @@
 
 
     /* ═══════════════════════════════════════════════
-       11. SERVICES — prev/next arrow carousel
+       11. SERVICES — carousel with live scroll
     ═══════════════════════════════════════════════ */
     (function () {
+        /* Inject styles: no selection, no img drag */
+        (function () {
+            var s = document.createElement('style');
+            s.textContent =
+                '.svc-carousel-wrap{user-select:none;-webkit-user-select:none;cursor:grab}' +
+                '.svc-carousel-wrap.is-scrolling{cursor:grabbing}' +
+                '.svc-card img{pointer-events:none;-webkit-user-drag:none;user-drag:none}' +
+                '.svc-track{will-change:transform}';
+            document.head.appendChild(s);
+        }());
+
         var svcTrack    = document.getElementById('svcTrack');
-        var svcCounter  = document.getElementById('svcCounter');
         var svcFill     = document.getElementById('svcProgressFill');
         var svcDotsWrap = document.getElementById('svcDots');
         var btnPrev     = document.getElementById('svcBtnPrev');
         var btnNext     = document.getElementById('svcBtnNext');
+        var svcWrap     = document.querySelector('.svc-carousel-wrap');
+        var svcViewport = document.querySelector('.svc-viewport');
 
         if (!svcTrack) return;
 
@@ -541,14 +553,19 @@
         var N = svcCards.length;
         if (N === 0) return;
 
-        var CARD_W   = 280;
-        var CARD_GAP = 18;
-        var activeIdx = 0;
-        var prevIdx   = -1;
-        var animRaf   = null;
-        var currentTx = 0;
-        var targetTx  = 0;
+        /* ── State ── */
+        var CARD_W      = 280;
+        var CARD_GAP    = 18;
+        var activeIdx   = 0;
+        var currentTx   = 0;   /* actual rendered position */
+        var targetTx    = 0;   /* destination (used by spring) */
+        var animRaf     = null;
 
+        /* ── Live scroll state ── */
+        var rawPos      = 0;   /* fractional card index, updated every frame during scroll */
+        var isScrolling = false;
+
+        /* ── Dots ── */
         var svcDots = [];
         if (svcDotsWrap) {
             svcCards.forEach(function (_, i) {
@@ -557,9 +574,16 @@
                 d.setAttribute('aria-label', 'Service ' + (i + 1));
                 svcDotsWrap.appendChild(d);
                 svcDots.push(d);
-                d.addEventListener('click', function () { goToCard(i); });
+                d.addEventListener('click', function () { snapToCard(i); });
             });
         }
+
+        /* ── Helpers ── */
+        function getVW()        { return svcViewport ? svcViewport.clientWidth : window.innerWidth; }
+        function cardStep()     { return CARD_W + CARD_GAP; }
+        function centerOffset() { return getVW() * 0.5 - CARD_W * 0.5; }
+        function txForCard(i)   { return centerOffset() - i * cardStep(); }
+        function rawFromTx(tx)  { return (centerOffset() - tx) / cardStep(); }
 
         function recalc() {
             var vw = window.innerWidth;
@@ -572,114 +596,327 @@
             });
             svcTrack.style.flexWrap = 'nowrap';
             svcTrack.style.width    = 'max-content';
-            targetTx  = getTxForCard(activeIdx);
+            targetTx  = txForCard(activeIdx);
             currentTx = targetTx;
+            rawPos    = activeIdx;
             svcTrack.style.transform = 'translateX(' + currentTx + 'px)';
         }
 
-        var svcViewport = document.querySelector('.svc-viewport');
-        function getViewportW() { return svcViewport ? svcViewport.clientWidth : window.innerWidth; }
-        function getTxForCard(idx) { return (getViewportW() * 0.5 - CARD_W * 0.5) - idx * (CARD_W + CARD_GAP); }
+        /* ══════════════════════════════════════════
+           CARD APPEARANCE — live fractional version
+           Called every animation frame so the center
+           card enlarges/shrinks continuously as you
+           scroll, not in discrete jumps.
+        ══════════════════════════════════════════ */
+        function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+        function lerp(a, b, t)    { return a + (b - a) * clamp(t, 0, 1); }
 
-        function animateTick() {
-            var diff = targetTx - currentTx;
-            if (Math.abs(diff) < 0.5) { currentTx = targetTx; svcTrack.style.transform = 'translateX(' + currentTx + 'px)'; animRaf = null; return; }
-            currentTx += diff * 0.14;
-            svcTrack.style.transform = 'translateX(' + currentTx + 'px)';
-            animRaf = requestAnimationFrame(animateTick);
-        }
-        function startAnim() { if (!animRaf) animRaf = requestAnimationFrame(animateTick); }
-        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+        /* Match your CSS values */
+        var S_ACTIVE = 1.04, S_NEAR = 0.96, S_FAR = 0.88;
+        var Y_ACTIVE = -8,   Y_NEAR = 2,    Y_FAR = 8;
+        var O_ACTIVE = 1.0,  O_NEAR = 0.78, O_FAR = 0.40;
+        var R_SCALE  = 2.0;   /* max rotation degrees at dist=1 */
 
-        function goToCard(idx) {
-            idx = Math.max(0, Math.min(N - 1, idx));
-            activeIdx = idx;
-            targetTx  = getTxForCard(idx);
-            updateUI();
-            startAnim();
-        }
+        function applyLiveStyles(raw) {
+            /* Clamp rawPos to card bounds for display */
+            raw = clamp(raw, 0, N - 1);
 
-        function updateUI() {
-            if (activeIdx !== prevIdx) {
-                prevIdx = activeIdx;
-                if (svcCounter) svcCounter.textContent = pad(activeIdx + 1) + ' / ' + pad(N);
-                svcDots.forEach(function (d, i) { d.classList.toggle('svc-dot-active', i === activeIdx); });
-            }
-            if (svcFill) svcFill.style.transform = 'scaleX(' + (N > 1 ? activeIdx / (N - 1) : 1) + ')';
-            if (btnPrev) btnPrev.disabled = (activeIdx === 0);
-            if (btnNext) btnNext.disabled = (activeIdx === N - 1);
+            var nearest = Math.round(raw);
+            var progress = N > 1 ? clamp(raw / (N - 1), 0, 1) : 1;
+
+            if (svcFill) svcFill.style.transform = 'scaleX(' + progress + ')';
+            if (btnPrev) btnPrev.disabled = (raw <= 0.01);
+            if (btnNext) btnNext.disabled = (raw >= N - 1.01);
+            svcDots.forEach(function (d, i) { d.classList.toggle('svc-dot-active', i === nearest); });
+
             svcCards.forEach(function (card, i) {
-                card.classList.remove('svc-active', 'svc-near', 'svc-far', 'svc-right',
-                                      'svc-d1', 'svc-d2', 'svc-d3', 'svc-d4');
-                var diff    = i - activeIdx;
-                var absDiff = Math.abs(diff);
-                var isRight = diff > 0;
+                /* Strip CSS classes — inline style drives everything live */
+                card.classList.remove(
+                    'svc-active','svc-near','svc-far','svc-right',
+                    'svc-d1','svc-d2','svc-d3','svc-d4'
+                );
 
-                if (diff === 0) {
-                    card.classList.add('svc-active');
+                var dist = Math.abs(i - raw);
+                var sc, ty, op, rot;
+
+                if (dist <= 1) {
+                    var t = 1 - dist;           /* 1 at center, 0 at dist=1 */
+                    sc  = lerp(S_NEAR, S_ACTIVE, t);
+                    ty  = lerp(Y_NEAR, Y_ACTIVE, t);
+                    op  = lerp(O_NEAR, O_ACTIVE, t);
+                    rot = (i - raw) * R_SCALE * (1 - t);
+                } else if (dist <= 2) {
+                    var t2 = 2 - dist;           /* 1 at dist=1, 0 at dist=2 */
+                    sc  = lerp(S_FAR, S_NEAR, t2);
+                    ty  = lerp(Y_FAR, Y_NEAR, t2);
+                    op  = lerp(O_FAR, O_NEAR, t2);
+                    rot = (i > raw ? 1 : -1) * R_SCALE;
                 } else {
-                    // distance class for bridge arc depth
-                    var dClass = absDiff >= 4 ? 'svc-d4' :
-                                 absDiff === 3 ? 'svc-d3' :
-                                 absDiff === 2 ? 'svc-d2' : 'svc-d1';
-                    card.classList.add(dClass);
-                    if (isRight) card.classList.add('svc-right');
-                    // keep legacy near/far for any external code
-                    if (absDiff === 1) card.classList.add('svc-near');
-                    else               card.classList.add('svc-far');
+                    sc  = S_FAR;
+                    ty  = Y_FAR;
+                    op  = O_FAR;
+                    rot = (i > raw ? 1 : -1) * R_SCALE;
                 }
+
+                card.style.transform = 'scale(' + sc + ') translateY(' + ty + 'px) rotate(' + rot + 'deg)';
+                card.style.opacity   = op;
+                card.style.zIndex    = Math.round((1 - clamp(dist, 0, 3) / 3) * 10);
+                card.style.transition = isScrolling
+                    ? 'opacity .1s, z-index 0s'      /* fast during scroll */
+                    : 'transform .45s cubic-bezier(.22,.68,0,1.1), opacity .45s, z-index 0s';
             });
         }
 
-        if (btnPrev) btnPrev.addEventListener('click', function (e) { e.stopPropagation(); goToCard(activeIdx - 1); });
-        if (btnNext) btnNext.addEventListener('click', function (e) { e.stopPropagation(); goToCard(activeIdx + 1); });
+        /* ── Discrete updateUI (after snap) — resets inline to CSS classes ── */
+        function updateUI() {
+            svcCards.forEach(function (card) {
+                card.style.transform = '';
+                card.style.opacity   = '';
+                card.style.zIndex    = '';
+                card.style.transition = '';
+            });
+            applyLiveStyles(activeIdx);
+            /* Re-apply CSS classes for the snapped state */
+            svcCards.forEach(function (card, i) {
+                card.style.transform = '';
+                card.style.opacity   = '';
+                card.style.zIndex    = '';
+                var diff = i - activeIdx, ab = Math.abs(diff);
+                card.classList.remove(
+                    'svc-active','svc-near','svc-far','svc-right',
+                    'svc-d1','svc-d2','svc-d3','svc-d4'
+                );
+                if (diff === 0) {
+                    card.classList.add('svc-active');
+                } else {
+                    card.classList.add(ab >= 4 ? 'svc-d4' : ab === 3 ? 'svc-d3' : ab === 2 ? 'svc-d2' : 'svc-d1');
+                    if (diff > 0) card.classList.add('svc-right');
+                    card.classList.add(ab === 1 ? 'svc-near' : 'svc-far');
+                }
+            });
+            var progress = N > 1 ? activeIdx / (N - 1) : 1;
+            if (svcFill) svcFill.style.transform = 'scaleX(' + progress + ')';
+            if (btnPrev) btnPrev.disabled = (activeIdx === 0);
+            if (btnNext) btnNext.disabled = (activeIdx === N - 1);
+            svcDots.forEach(function (d, i) { d.classList.toggle('svc-dot-active', i === activeIdx); });
+        }
 
-        /* ── Touch / swipe support (full carousel wrap, not just track) ── */
-        var svcWrap     = document.querySelector('.svc-carousel-wrap');
+        /* ── Spring animation (used after snap) ── */
+        function animateTick() {
+            var diff = targetTx - currentTx;
+            if (Math.abs(diff) < 0.5) {
+                currentTx = targetTx;
+                svcTrack.style.transform = 'translateX(' + currentTx + 'px)';
+                isScrolling = false;
+                animRaf = null;
+                updateUI();   /* restore CSS classes */
+                return;
+            }
+            currentTx += diff * 0.14;
+            rawPos = rawFromTx(currentTx);
+            svcTrack.style.transform = 'translateX(' + currentTx + 'px)';
+            applyLiveStyles(rawPos);
+            animRaf = requestAnimationFrame(animateTick);
+        }
+
+        /* ── Snap to a card index with spring ── */
+        function snapToCard(idx) {
+            idx = Math.max(0, Math.min(N - 1, idx));
+            activeIdx = idx;
+            targetTx  = txForCard(idx);
+            isScrolling = true;
+            if (!animRaf) animRaf = requestAnimationFrame(animateTick);
+        }
+
+        /* ── Find nearest card from current tx and snap ── */
+        function snapFromPos() {
+            var raw = rawFromTx(currentTx);
+            snapToCard(Math.round(raw));
+        }
+
+        /* ── Live RAF loop during wheel/drag — updates appearance every frame ── */
+        var liveRaf     = null;
+        var liveTargetTx = 0;
+
+        function liveTick() {
+            var diff = liveTargetTx - currentTx;
+            if (Math.abs(diff) < 0.3) {
+                currentTx = liveTargetTx;
+            } else {
+                currentTx += diff * 0.18;   /* snappier follow during scroll */
+            }
+            rawPos = rawFromTx(currentTx);
+            svcTrack.style.transform = 'translateX(' + currentTx + 'px)';
+            applyLiveStyles(rawPos);
+
+            if (Math.abs(diff) > 0.3) {
+                liveRaf = requestAnimationFrame(liveTick);
+            } else {
+                liveRaf = null;
+            }
+        }
+
+        function startLive(newTargetTx) {
+            liveTargetTx = newTargetTx;
+            if (!liveRaf) liveRaf = requestAnimationFrame(liveTick);
+        }
+
+        /* ── Arrow buttons ── */
+        if (btnPrev) btnPrev.addEventListener('click', function (e) {
+            e.stopPropagation();
+            snapToCard(activeIdx - 1);
+        });
+        if (btnNext) btnNext.addEventListener('click', function (e) {
+            e.stopPropagation();
+            snapToCard(activeIdx + 1);
+        });
+
+        /* ══════════════════════════════════════════
+           WHEEL SCROLL — real-time, prevents page
+           scroll while over the carousel section.
+           Moves cards live, snaps on settle.
+        ══════════════════════════════════════════ */
+        var wheelSettleTimer = null;
+
+        var svcSection = document.getElementById('services');
+        if (svcSection) {
+            svcSection.addEventListener('wheel', function (e) {
+                e.preventDefault();   /* stop page scrolling */
+                e.stopPropagation();
+
+                var delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+                if (delta === 0) return;
+
+                /* Cancel any running spring */
+                if (animRaf) { cancelAnimationFrame(animRaf); animRaf = null; }
+
+                isScrolling = true;
+                if (svcWrap) svcWrap.classList.add('is-scrolling');
+
+                /* Move the target position by raw pixels */
+                liveTargetTx -= delta;
+
+                /* Clamp so you can't scroll past first/last card */
+                var minTx = txForCard(N - 1);
+                var maxTx = txForCard(0);
+                liveTargetTx = clamp(liveTargetTx, minTx, maxTx);
+
+                startLive(liveTargetTx);
+
+                /* Snap to nearest card 120ms after scrolling stops */
+                clearTimeout(wheelSettleTimer);
+                wheelSettleTimer = setTimeout(function () {
+                    if (liveRaf) { cancelAnimationFrame(liveRaf); liveRaf = null; }
+                    if (svcWrap) svcWrap.classList.remove('is-scrolling');
+                    currentTx = liveTargetTx;
+                    snapFromPos();
+                }, 120);
+
+            }, { passive: false });
+        }
+
+        /* ══════════════════════════════════════════
+           TOUCH / SWIPE — position-based snap
+        ══════════════════════════════════════════ */
         var touchStartX = 0;
         var touchStartY = 0;
-        var isSwiping   = false;
+        var isDragging  = false;
+        var dragStartTx = 0;
 
         function onTouchStart(e) {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-            isSwiping   = false;
-        }
-        function onTouchMove(e) {
-            var dx = Math.abs(e.touches[0].clientX - touchStartX);
-            var dy = Math.abs(e.touches[0].clientY - touchStartY);
-            if (dx > dy && dx > 8) { isSwiping = true; e.preventDefault(); }
-        }
-        function onTouchEnd(e) {
-            var dx = touchStartX - e.changedTouches[0].clientX;
-            if (isSwiping && Math.abs(dx) > 35) {
-                goToCard(dx > 0 ? activeIdx + 1 : activeIdx - 1);
-            }
-            isSwiping = false;
+            isDragging  = false;
+            dragStartTx = currentTx;
+            liveTargetTx = currentTx;
+            if (animRaf) { cancelAnimationFrame(animRaf); animRaf = null; }
+            if (liveRaf)  { cancelAnimationFrame(liveRaf);  liveRaf  = null; }
+            isScrolling = true;
         }
 
-        /* Attach to the full carousel wrap so swipe works anywhere on the strip */
+        function onTouchMove(e) {
+            var dx = e.touches[0].clientX - touchStartX;
+            var dy = e.touches[0].clientY - touchStartY;
+            if (!isDragging && Math.abs(dy) > Math.abs(dx)) return;
+            if (!isDragging && Math.abs(dx) < 5) return;
+            isDragging = true;
+            e.preventDefault();
+            liveTargetTx = dragStartTx + dx;
+            startLive(liveTargetTx);
+        }
+
+        function onTouchEnd() {
+            if (!isDragging) { isDragging = false; isScrolling = false; return; }
+            isDragging = false;
+            if (liveRaf) { cancelAnimationFrame(liveRaf); liveRaf = null; }
+            currentTx = liveTargetTx;
+            snapFromPos();
+        }
+
         if (svcWrap) {
             svcWrap.addEventListener('touchstart', onTouchStart, { passive: true });
             svcWrap.addEventListener('touchmove',  onTouchMove,  { passive: false });
             svcWrap.addEventListener('touchend',   onTouchEnd,   { passive: true });
         }
 
-        /* ── Card click: non-active → center first; active → open modal ── */
+        /* ══════════════════════════════════════════
+           MOUSE DRAG — desktop
+        ══════════════════════════════════════════ */
+        var mouseDown    = false;
+        var mouseDragged = false;
+        var mouseStartX  = 0;
+        var mouseDragTx  = 0;
+
+        if (svcWrap) {
+            svcWrap.addEventListener('mousedown', function (e) {
+                if (e.button !== 0) return;
+                mouseDown    = true;
+                mouseDragged = false;
+                mouseStartX  = e.clientX;
+                mouseDragTx  = currentTx;
+                liveTargetTx = currentTx;
+                if (animRaf) { cancelAnimationFrame(animRaf); animRaf = null; }
+                if (liveRaf)  { cancelAnimationFrame(liveRaf);  liveRaf  = null; }
+                isScrolling = true;
+                svcWrap.classList.add('is-scrolling');
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function (e) {
+                if (!mouseDown) return;
+                var dx = e.clientX - mouseStartX;
+                if (!mouseDragged && Math.abs(dx) < 5) return;
+                mouseDragged = true;
+                liveTargetTx = mouseDragTx + dx;
+                startLive(liveTargetTx);
+            });
+
+            document.addEventListener('mouseup', function () {
+                if (!mouseDown) return;
+                mouseDown = false;
+                svcWrap.classList.remove('is-scrolling');
+                if (mouseDragged) {
+                    mouseDragged = false;
+                    if (liveRaf) { cancelAnimationFrame(liveRaf); liveRaf = null; }
+                    currentTx = liveTargetTx;
+                    isScrolling = false;
+                    snapFromPos();
+                }
+            });
+
+            svcWrap.addEventListener('click', function (e) {
+                if (mouseDragged) { e.stopPropagation(); mouseDragged = false; }
+            }, true);
+        }
+
+        /* ── Card click: non-active → snap to it; active → open modal ── */
         svcCards.forEach(function (card) {
             card.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var idx = parseInt(card.getAttribute('data-index'));
-
-                /* If this card is NOT the active/center one, just slide it to center */
-                if (idx !== activeIdx) {
-                    goToCard(idx);
-                    return;   /* do NOT open modal yet */
-                }
-
-                /* Card is already centered — open the modal */
-                var name   = card.getAttribute('data-name');
-                var desc   = card.getAttribute('data-desc');
+                if (idx !== activeIdx) { snapToCard(idx); return; }
+                var name = card.getAttribute('data-name');
+                var desc = card.getAttribute('data-desc');
                 var images = [];
                 try { images = JSON.parse(card.getAttribute('data-imgs') || '[]'); } catch (_) {}
                 openSvcModal(name, desc, images);
@@ -688,7 +925,7 @@
 
         function init() {
             recalc();
-            goToCard(0);
+            snapToCard(0);
             window.addEventListener('resize', function () { recalc(); updateUI(); });
         }
 
@@ -697,10 +934,29 @@
     }());
 
 
+
     /* ═══════════════════════════════════════════════
        12. SUPPLIES — category panel + paginated grid
+           FIX: remove justify-content:center so
+           the header row is freely scrollable on
+           small screens
     ═══════════════════════════════════════════════ */
     (function () {
+        /* ── Fix: make .sup-cat-header scrollable on mobile ── */
+        var catHeader = document.querySelector('.sup-cat-header');
+        if (catHeader) {
+            /* Remove the centering so items don't overflow and get clipped */
+            catHeader.style.justifyContent = 'flex-start';
+
+            /* Scroll the active button into view on load */
+            var activeBtn = catHeader.querySelector('.sup-cat-btn.active');
+            if (activeBtn) {
+                setTimeout(function () {
+                    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }, 100);
+            }
+        }
+
         var PER_PAGE = 12;
 
         function getCatData()    { return window.supCatData    || {}; }
@@ -784,6 +1040,9 @@
         function switchCat(btn) {
             catBtns.forEach(function (b) { b.classList.remove('active'); });
             btn.classList.add('active');
+
+            /* Scroll the newly active button into view */
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
             var newCat = parseInt(btn.getAttribute('data-cat-id'));
             if (newCat === activeCat) return;

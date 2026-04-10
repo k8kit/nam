@@ -20,9 +20,15 @@ $page_items  = array_slice($updates, $offset, $per_page);
             </span>
         </h2>
     </div>
-    <button class="btn-add" onclick="openAddUpdateModal()">
-        <i class="fas fa-plus"></i> New Post
-    </button>
+    <div style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;">
+        <div class="msg-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="updSearchInput" placeholder="Search posts…" oninput="applyUpdateFilters(this.value)">
+        </div>
+        <button class="btn-add" onclick="openAddUpdateModal()">
+            <i class="fas fa-plus"></i> New Post
+        </button>
+    </div>
 </div>
 
 <div class="admin-card">
@@ -33,7 +39,7 @@ $page_items  = array_slice($updates, $offset, $per_page);
             </thead>
             <tbody>
                 <?php foreach ($page_items as $upd): ?>
-                <tr>
+                <tr data-search="<?php echo strtolower(htmlspecialchars($upd['title'] . ' ' . strip_tags($upd['description'] ?? ''))); ?>">
                     <td style="text-align:center; font-size:.85rem;"><?php echo $upd['sort_order']; ?></td>
                     <td><span style="font-weight:700; font-size:.9rem;"><?php echo htmlspecialchars($upd['title']); ?></span></td>
                     <td>
@@ -50,9 +56,16 @@ $page_items  = array_slice($updates, $offset, $per_page);
                     </td>
                 </tr>
                 <?php endforeach; ?>
+
+                <tr id="updNoResults" style="display:none;">
+                    <td colspan="5" style="text-align:center; color:var(--text-light); padding:2rem;">
+                        <i class="fas fa-search" style="margin-right:.4rem;"></i> No posts match your search.
+                    </td>
+                </tr>
             </tbody>
         </table>
 
+        <!-- Pagination -->
         <?php if ($total_pages > 1): ?>
         <div class="adm-pagination">
             <div class="adm-pag-info">

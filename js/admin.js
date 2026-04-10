@@ -133,14 +133,6 @@
    SHARED FETCH HELPER
    ============================================================================= */
 
-/**
- * adminFetch — POST form data, parse JSON, call onSuccess or onError.
- *
- * On success the backend returns { success: true, message: "..." }.
- * Callers that need to redirect after success should call
- *   redirectWithToast(url, message, type)
- * inside their onSuccess callback.
- */
 function adminFetch(url, formData, onSuccess, onError) {
     fetch(url, { method: 'POST', body: formData })
         .then(r => {
@@ -164,10 +156,6 @@ function adminFetch(url, formData, onSuccess, onError) {
         .catch(err => onError(err.message || 'Network error. Please try again.'));
 }
 
-/**
- * Store a toast message in sessionStorage then redirect.
- * The toast fires once the new page loads (picked up in initToasts DOMContentLoaded).
- */
 function redirectWithToast(url, message, type = 'success') {
     try {
         sessionStorage.setItem('adminToast', JSON.stringify({ message, type }));
@@ -181,6 +169,20 @@ function redirectWithToast(url, message, type = 'success') {
    ============================================================================= */
 
 let _clientDeleteId = null;
+
+/* ── Client inline search ── */
+function applyClientFilters(query) {
+    query = (query ?? '').toLowerCase().trim();
+    const rows    = document.querySelectorAll('#clientsTable tbody tr:not(#clientNoResults)');
+    let visible   = 0;
+    rows.forEach(row => {
+        const match = query === '' || (row.getAttribute('data-search') ?? '').includes(query);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    const noRes = document.getElementById('clientNoResults');
+    if (noRes) noRes.style.display = visible === 0 ? '' : 'none';
+}
 
 function openClientDeleteConfirm(id, name) {
     _clientDeleteId = id;
@@ -257,6 +259,20 @@ document.addEventListener('DOMContentLoaded', initClientModalListeners);
    ============================================================================= */
 
 let _svcDeleteId = null;
+
+/* ── Services inline search ── */
+function applyServiceFilters(query) {
+    query = (query ?? '').toLowerCase().trim();
+    const rows  = document.querySelectorAll('#servicesTable tbody tr:not(#serviceNoResults)');
+    let visible = 0;
+    rows.forEach(row => {
+        const match = query === '' || (row.getAttribute('data-search') ?? '').includes(query);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    const noRes = document.getElementById('serviceNoResults');
+    if (noRes) noRes.style.display = visible === 0 ? '' : 'none';
+}
 
 function openSvcDeleteConfirm(id, name) {
     _svcDeleteId = id;
@@ -515,7 +531,6 @@ function viewMessage(id) {
             document.getElementById('messageModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Optimistically mark row as read in the table
             document.querySelectorAll('#messagesTable tbody tr').forEach(row => {
                 if (row.querySelector(`[onclick="viewMessage(${id})"]`)) {
                     const badge = row.querySelector('.status-badge');
@@ -836,6 +851,20 @@ document.addEventListener('DOMContentLoaded', initSuppliesPageListeners);
    ============================================================================= */
 
 let _updDeleteId = null;
+
+/* ── Updates inline search ── */
+function applyUpdateFilters(query) {
+    query = (query ?? '').toLowerCase().trim();
+    const rows  = document.querySelectorAll('#updatesTable tbody tr:not(#updNoResults)');
+    let visible = 0;
+    rows.forEach(row => {
+        const match = query === '' || (row.getAttribute('data-search') ?? '').includes(query);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    const noRes = document.getElementById('updNoResults');
+    if (noRes) noRes.style.display = visible === 0 ? '' : 'none';
+}
 
 function openUpdDeleteConfirm(id, title) {
     _updDeleteId = id;
