@@ -711,3 +711,6 @@ INSERT IGNORE INTO site_stats (stat_key, label, value, suffix, sort_order) VALUE
   -- Run this in your database to add the replied status
  
 ALTER TABLE contact_messages ADD COLUMN is_replied TINYINT(1) DEFAULT 0 AFTER is_read;
+-- Run this on your nam_builders database to add client watermark support
+ALTER TABLE `services` ADD COLUMN `client_id` INT DEFAULT NULL AFTER `icon_class`;
+ALTER TABLE `services` ADD CONSTRAINT `services_client_fk` FOREIGN KEY (`client_id`) REFERENCES `clients`(`id`) ON DELETE SET NULL;

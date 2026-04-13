@@ -289,6 +289,7 @@ function executeSvcDelete() {
     if (_svcDeleteId) window.location.href = `../backend/delete_service.php?id=${_svcDeleteId}`;
 }
 
+// ─── REPLACE openAddServiceModal() to also reset the client selector ─────────
 function openAddServiceModal() {
     document.getElementById('modalTitle').innerText = 'Add New Service';
     document.getElementById('serviceForm').reset();
@@ -296,6 +297,14 @@ function openAddServiceModal() {
     document.getElementById('newImagesPreview').innerHTML = '';
     document.getElementById('existingImagesSection').style.display = 'none';
     document.getElementById('existingImagesGrid').innerHTML = '';
+
+    // Reset client watermark preview
+    const clientSel = document.getElementById('serviceClientId');
+    if (clientSel) {
+        clientSel.value = '';
+        updateClientWatermarkPreview(clientSel);
+    }
+
     document.getElementById('serviceModal').classList.add('active');
 }
 
@@ -325,6 +334,9 @@ function previewNewImages(input) {
     });
 }
 
+// ─── REPLACE the editService() function in admin.js with this version ───────
+// It adds client_id + watermark preview population when editing a service.
+
 function editService(id) {
     fetch(`../backend/get_service.php?id=${id}`)
         .then(r => r.json())
@@ -339,6 +351,14 @@ function editService(id) {
             document.getElementById('serviceActive').checked      = s.is_active == 1;
             document.getElementById('newImagesPreview').innerHTML = '';
 
+            // ── Populate client watermark selector ──
+            const clientSel = document.getElementById('serviceClientId');
+            if (clientSel) {
+                clientSel.value = s.client_id || '';
+                updateClientWatermarkPreview(clientSel);
+            }
+
+            // ── Existing images ──
             const section = document.getElementById('existingImagesSection');
             const grid    = document.getElementById('existingImagesGrid');
             grid.innerHTML = '';
@@ -355,6 +375,7 @@ function editService(id) {
         })
         .catch(() => showToast('Network error loading service.', 'danger'));
 }
+
 
 function buildExistingImgItem(img) {
     const wrapper = document.createElement('div');

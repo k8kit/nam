@@ -9,6 +9,10 @@ foreach ($all_services as &$service) {
 }
 unset($service);
 
+// Fetch all active clients for the watermark selector
+$clients_result = $conn->query("SELECT id, client_name, image_path FROM clients WHERE is_active = 1 ORDER BY sort_order ASC, client_name ASC");
+$all_clients_for_sel = $clients_result ? $clients_result->fetch_all(MYSQLI_ASSOC) : [];
+
 $admin_uploads_url = rtrim(str_replace('/admin', '', rtrim(BASE_URL, '/')), '/') . '/uploads/';
 $total_items       = count($all_services);
 
@@ -44,14 +48,32 @@ $page_items  = array_slice($all_services, $offset, $per_page);
         <table class="admin-table" id="servicesTable">
             <thead>
                 <tr>
-                    <th>Order</th><th>Service Name</th><th>Status</th><th>Created</th><th>Actions</th>
+                    <th>Order</th><th>Service Name</th><th>Client</th><th>Status</th><th>Created</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($page_items as $service): ?>
+                <?php foreach ($page_items as $service):
+                    // Get client name if assigned
+                    $client_label = '—';
+                    if (!empty($service['client_id'])) {
+                        foreach ($all_clients_for_sel as $cl) {
+                            if ($cl['id'] == $service['client_id']) { $client_label = sanitize($cl['client_name']); break; }
+                        }
+                    }
+                ?>
                 <tr data-search="<?php echo strtolower(htmlspecialchars($service['service_name'] . ' ' . strip_tags($service['description'] ?? ''))); ?>">
                     <td><?php echo $service['sort_order']; ?></td>
                     <td><?php echo sanitize($service['service_name']); ?></td>
+                    <td>
+                        <?php if (!empty($service['client_id'])): ?>
+                            <span style="display:inline-flex;align-items:center;gap:.35rem;background:#1565C020;color:#1565C0;border:1px solid #1565C040;border-radius:50px;padding:.2rem .65rem;font-size:.76rem;font-weight:800;">
+                                <i class="fas fa-building" style="font-size:.65rem;"></i>
+                                <?php echo $client_label; ?>
+                            </span>
+                        <?php else: ?>
+                            <span style="color:var(--text-light);font-size:.82rem;">—</span>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <span class="badge" style="background-color:<?php echo $service['is_active'] ? '#28A745' : '#6C757D'; ?>;">
                             <?php echo $service['is_active'] ? 'Active' : 'Inactive'; ?>
@@ -68,7 +90,7 @@ $page_items  = array_slice($all_services, $offset, $per_page);
                 <?php endforeach; ?>
 
                 <tr id="serviceNoResults" style="display:none;">
-                    <td colspan="5" style="text-align:center; color:var(--text-light); padding:2rem;">
+                    <td colspan="6" style="text-align:center; color:var(--text-light); padding:2rem;">
                         <i class="fas fa-search" style="margin-right:.4rem;"></i> No services match your search.
                     </td>
                 </tr>
@@ -142,6 +164,39 @@ $page_items  = array_slice($all_services, $offset, $per_page);
                 <textarea id="serviceDescription" name="description" class="form-control" rows="4" placeholder="Describe this service"></textarea>
             </div>
 
+            <!-- Client / Watermark Selector -->
+            <div class="form-group">
+                <label for="serviceClientId" style="display:flex;align-items:center;gap:.5rem;">
+                    <i class="fas fa-stamp" style="color:var(--primary-color);font-size:.85rem;"></i>
+                    Client Watermark
+                    <span style="font-size:.75rem;font-weight:400;color:var(--text-light);">(shown on service card photos)</span>
+                </label>
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <select id="serviceClientId" name="client_id" class="form-control" style="flex:1;"
+                            onchange="updateClientWatermarkPreview(this)">
+                        <option value="">— No watermark —</option>
+                        <?php foreach ($all_clients_for_sel as $cl): ?>
+                        <option value="<?php echo $cl['id']; ?>"
+                                data-img="<?php echo !empty($cl['image_path']) ? $admin_uploads_url . htmlspecialchars($cl['image_path']) : ''; ?>">
+                            <?php echo htmlspecialchars($cl['client_name']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <!-- Live preview of selected client logo -->
+                    <div id="clientWatermarkPreview"
+                         style="width:52px;height:52px;border:1.5px solid var(--border-color);border-radius:8px;
+                                background:var(--light-bg);display:flex;align-items:center;justify-content:center;
+                                overflow:hidden;flex-shrink:0;transition:border-color .2s;">
+                        <i class="fas fa-building" style="font-size:1.2rem;color:var(--border-color);" id="clientPreviewPlaceholder"></i>
+                        <img id="clientPreviewImg" src="" alt=""
+                             style="width:100%;height:100%;object-fit:contain;padding:6px;display:none;">
+                    </div>
+                </div>
+                <small style="color:var(--text-light);margin-top:.3rem;display:block;">
+                    The client logo will appear as a small watermark in the bottom-right corner of service photos.
+                </small>
+            </div>
+
             <!-- Existing images (shown in edit mode) -->
             <div id="existingImagesSection" style="display:none; margin-bottom:1.2rem;">
                 <label style="font-weight:600;color:var(--text-dark);display:block;margin-bottom:.5rem;">
@@ -192,3 +247,24 @@ $page_items  = array_slice($all_services, $offset, $per_page);
         </div>
     </div>
 </div>
+
+<script>
+// Client watermark preview in modal
+function updateClientWatermarkPreview(select) {
+    var opt = select.options[select.selectedIndex];
+    var imgSrc = opt ? opt.getAttribute('data-img') : '';
+    var previewImg = document.getElementById('clientPreviewImg');
+    var placeholder = document.getElementById('clientPreviewPlaceholder');
+    var previewBox = document.getElementById('clientWatermarkPreview');
+    if (imgSrc) {
+        previewImg.src = imgSrc;
+        previewImg.style.display = 'block';
+        placeholder.style.display = 'none';
+        previewBox.style.borderColor = 'var(--primary-color)';
+    } else {
+        previewImg.style.display = 'none';
+        placeholder.style.display = '';
+        previewBox.style.borderColor = 'var(--border-color)';
+    }
+}
+</script>

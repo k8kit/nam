@@ -12,6 +12,15 @@ foreach ($services as &$service) {
     if (empty($service['images']) && !empty($service['image_path'])) {
         $service['images'] = [['image_path' => $service['image_path']]];
     }
+    // Load client watermark
+    $service['client_logo'] = '';
+    if (!empty($service['client_id'])) {
+        $cid = intval($service['client_id']);
+        $cl = $conn->query("SELECT image_path FROM clients WHERE id = $cid AND is_active = 1 LIMIT 1");
+        if ($cl && $row = $cl->fetch_assoc()) {
+            $service['client_logo'] = $row['image_path'];
+        }
+    }
 }
 unset($service);
 
@@ -342,49 +351,41 @@ unset($upd);
                                 }
                             }
                             $num = str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+                            $client_logo_url = !empty($sv['client_logo']) ? UPLOADS_URL . $sv['client_logo'] : '';
                         ?>
                         <div class="svc-card"
-                             data-index="<?php echo $idx; ?>"
-                             data-name="<?php echo htmlspecialchars($sv['service_name']); ?>"
-                             data-desc="<?php echo htmlspecialchars(strip_tags($sv['description'])); ?>"
-                             data-imgs='<?php echo json_encode($all_images); ?>'>
-
+                            data-index="<?php echo $idx; ?>"
+                            data-name="<?php echo htmlspecialchars($sv['service_name']); ?>"
+                            data-desc="<?php echo htmlspecialchars(strip_tags($sv['description'])); ?>"
+                            data-imgs='<?php echo json_encode($all_images); ?>'
+                            data-client-logo="<?php echo htmlspecialchars($client_logo_url); ?>">
+                        
                             <span class="svc-card-badge"><?php echo $num; ?></span>
-
+                        
                             <div class="svc-card-img">
                                 <?php if ($first_img): ?>
                                     <img src="<?php echo $first_img; ?>"
-                                         alt="<?php echo htmlspecialchars($sv['service_name']); ?>"
-                                         loading="lazy">
+                                        alt="<?php echo htmlspecialchars($sv['service_name']); ?>"
+                                        loading="lazy">
                                 <?php else: ?>
                                     <div class="svc-card-placeholder">
                                         <i class="fas fa-hard-hat"></i>
                                     </div>
                                 <?php endif; ?>
                             </div>
-
+                        
+                            <?php if ($client_logo_url): ?>
+                            <!-- ── Client watermark badge ── -->
+                            <div class="svc-client-watermark">
+                                <img src="<?php echo htmlspecialchars($client_logo_url); ?>"
+                                    alt="Client"
+                                    loading="lazy"
+                                    onerror="this.parentElement.style.display='none'">
+                            </div>
+                            <?php endif; ?>
+                        
                             <div class="svc-card-label">
                                 <h3 class="svc-card-name"><?php echo htmlspecialchars($sv['service_name']); ?></h3>
-                                <span class="svc-card-cta">Inquire Now <i class="fas fa-arrow-right"></i></span>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <?php
-                        $placeholders = [];
-                        foreach ($placeholders as $pi => $ph):
-                            $num = str_pad($pi+1,2,'0',STR_PAD_LEFT);
-                        ?>
-                        <div class="svc-card" data-index="<?php echo $pi; ?>">
-                            <span class="svc-card-badge"><?php echo $num; ?></span>
-                            <div class="svc-card-img">
-                                <div class="svc-card-placeholder">
-                                    <i class="fas <?php echo $ph[1]; ?>"></i>
-                                </div>
-                            </div>
-                            <div class="svc-card-label">
-                                <span class="svc-card-tag">Service</span>
-                                <h3 class="svc-card-name"><?php echo $ph[0]; ?></h3>
                                 <span class="svc-card-cta">Inquire Now <i class="fas fa-arrow-right"></i></span>
                             </div>
                         </div>
@@ -854,6 +855,7 @@ unset($upd);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/carousel.js"></script>
     <script src="js/updates.js"></script>
+    <script src="//code.tidio.co/whqg71qplimxkdnf6spgzab5p2c6we3m.js" async></script>
 
 </body>
 </html>
