@@ -515,6 +515,10 @@
         founderEls.forEach(function (el) { founderObs.observe(el); });
     }());
 
+    window.addEventListener('beforeunload', function () {
+        sessionStorage.setItem('scrollPos', window.scrollY);
+    });
+
 
     /* ═══════════════════════════════════════════════
        10. AUTO-DISMISS BOOTSTRAP ALERTS
@@ -576,6 +580,45 @@
                 svcDots.push(d);
                 d.addEventListener('click', function () { snapToCard(i); });
             });
+        }
+        var wheelSettleTimer = null;
+
+        var svcSection = document.getElementById('services');
+        if (svcSection) {
+            svcSection.addEventListener('wheel', function (e) {
+                if (!e.target.closest('.svc-carousel-wrap')) return;
+
+                var isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+                if (!isHorizontal) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                var delta = e.deltaX;
+                if (delta === 0) return;
+
+                if (animRaf) { cancelAnimationFrame(animRaf); animRaf = null; }
+
+                isScrolling = true;
+                if (svcWrap) svcWrap.classList.add('is-scrolling');
+
+                liveTargetTx -= delta;
+
+                var minTx = txForCard(N - 1);
+                var maxTx = txForCard(0);
+                liveTargetTx = clamp(liveTargetTx, minTx, maxTx);
+
+                startLive(liveTargetTx);
+
+                clearTimeout(wheelSettleTimer);
+                wheelSettleTimer = setTimeout(function () {
+                    if (liveRaf) { cancelAnimationFrame(liveRaf); liveRaf = null; }
+                    if (svcWrap) svcWrap.classList.remove('is-scrolling');
+                    currentTx = liveTargetTx;
+                    snapFromPos();
+                }, 120);
+
+            }, { passive: false });
         }
 
         /* ── Helpers ── */
@@ -771,49 +814,8 @@
             snapToCard(activeIdx + 1);
         });
 
-        /* ══════════════════════════════════════════
-           WHEEL SCROLL — real-time, prevents page
-           scroll while over the carousel section.
-           Moves cards live, snaps on settle.
-        ══════════════════════════════════════════ */
-        var wheelSettleTimer = null;
 
-        var svcSection = document.getElementById('services');
-        if (svcSection) {
-            svcSection.addEventListener('wheel', function (e) {
-                e.preventDefault();   /* stop page scrolling */
-                e.stopPropagation();
-
-                var delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-                if (delta === 0) return;
-
-                /* Cancel any running spring */
-                if (animRaf) { cancelAnimationFrame(animRaf); animRaf = null; }
-
-                isScrolling = true;
-                if (svcWrap) svcWrap.classList.add('is-scrolling');
-
-                /* Move the target position by raw pixels */
-                liveTargetTx -= delta;
-
-                /* Clamp so you can't scroll past first/last card */
-                var minTx = txForCard(N - 1);
-                var maxTx = txForCard(0);
-                liveTargetTx = clamp(liveTargetTx, minTx, maxTx);
-
-                startLive(liveTargetTx);
-
-                /* Snap to nearest card 120ms after scrolling stops */
-                clearTimeout(wheelSettleTimer);
-                wheelSettleTimer = setTimeout(function () {
-                    if (liveRaf) { cancelAnimationFrame(liveRaf); liveRaf = null; }
-                    if (svcWrap) svcWrap.classList.remove('is-scrolling');
-                    currentTx = liveTargetTx;
-                    snapFromPos();
-                }, 120);
-
-            }, { passive: false });
-        }
+        
 
         /* ══════════════════════════════════════════
            TOUCH / SWIPE — position-based snap
@@ -927,10 +929,21 @@
             recalc();
             snapToCard(0);
             window.addEventListener('resize', function () { recalc(); updateUI(); });
+
+            var savedPos = parseInt(sessionStorage.getItem('scrollPos') || '0');
+            setTimeout(function () {
+                window.scrollTo({ top: savedPos, behavior: 'instant' });
+            }, 50);
         }
 
-        if (document.readyState === 'complete') { init(); }
-        else { window.addEventListener('load', init); }
+
+        if (document.readyState === 'complete') {
+            setTimeout(init, 0);
+        } else {
+            window.addEventListener('load', function() {
+                setTimeout(init, 0);
+            });
+        }
     }());
 
 
