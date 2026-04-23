@@ -103,8 +103,8 @@
     color:#9CA3AF; 
     font-size:1.1rem; 
     cursor:pointer; 
-    padding:0; l
-    ine-height:1; 
+    padding:0; 
+    line-height:1; 
     flex-shrink:0; 
     transition:color .2s; 
 }
