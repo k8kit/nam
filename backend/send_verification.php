@@ -64,16 +64,16 @@ try {
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';         // Your SMTP host
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'keithdaniellereyes@gmail.com';   // Your SMTP username
-    $mail->Password   = 'rgxf fubs yjot dmgs';      // Your SMTP password / App password
+    $mail->Username   = 'nambuildersandsupplycorpweb@gmail.com';   // Your SMTP username
+    $mail->Password   = 'kscg ianq ysnk mnqs';      // Your SMTP password / App password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     // ─────────────────────────────────────────────────────────────────────
 
-    $mail->setFrom('keithdaniellereyes@gmail.com', 'NAM Builders');
+    $mail->setFrom('nambuildersandsupplycorpweb@gmail.com', 'NAM Builders and Supply Corp.');
     $mail->addAddress($email);
     $mail->isHTML(true);
-    $mail->Subject = 'Your Verification Code - NAM Builders';
+    $mail->Subject = 'Your Verification Code - NAM Builders and Supply Corp.';
     $mail->Body    = '
 <!DOCTYPE html>
 <html>
@@ -93,7 +93,7 @@ try {
 </head>
 <body>
   <div class="wrap">
-    <div class="header"><h1>NAM Builders & Supply Corp</h1></div>
+    <div class="header"><h1>NAM Builders & Supply Corp.</h1></div>
     <div class="body">
       <p>You requested to send a message through our website.<br>Use the code below to verify your email address:</p>
       <div class="code">' . $code . '</div>

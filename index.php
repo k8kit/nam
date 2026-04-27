@@ -666,7 +666,10 @@ unset($upd);
                     <div class="cm-info-list">
                         <div class="cm-info-item">
                             <div class="cm-info-icon"><i class="fas fa-map-marker-alt"></i></div>
-                            <span>RNA Building Brgy. Santiago Malvar, Batangas</span>
+                            <div>
+                                <span style="display:block;"><strong style="color:rgba(255,255,255,.9);">Main:</strong> RNA Building, Brgy. Santiago, Malvar, Batangas 4233</span>
+                                <span style="display:block;margin-top:.3rem;"><strong style="color:rgba(255,255,255,.9);">Satellite:</strong> Yatco Subdivision, Brgy. 4, Tanauan City, Batangas</span>
+                            </div>
                         </div>
                         <div class="cm-info-item">
                             <div class="cm-info-icon"><i class="fas fa-phone"></i></div>
@@ -846,7 +849,8 @@ unset($upd);
                 </div>
                 <div class="footer-section">
                     <h3>Contact Us</h3>
-                    <div class="contact-info"><i class="fas fa-map-marker-alt"></i><span>RNA Building Brgy. Santiago Malvar, Batangas</span></div>
+                    <div class="contact-info"><i class="fas fa-map-marker-alt"></i><span><strong>Main:</strong> RNA Building, Brgy. Santiago, Malvar, Batangas 4233</span></div>
+                    <div class="contact-info"><i class="fas fa-map-marker-alt"></i><span><strong>Satellite:</strong> Yatco Subdivision, Brgy. 4, Tanauan City, Batangas</span></div>
                     <div class="contact-info"><i class="fas fa-phone"></i><span>09230209877 / 09385314311 / 09568365775 / 09461704399</span></div>
                     <div class="contact-info"><i class="fas fa-envelope"></i><span>nam.nswt@myahoo.com</span></div>
                 </div>

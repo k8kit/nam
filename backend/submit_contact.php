@@ -83,8 +83,8 @@ try {
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = 'keithdaniellereyes@gmail.com';
-                $mail->Password   = 'rgxf fubs yjot dmgs';
+                $mail->Username   = 'nambuildersandsupplycorpweb@gmail.com';
+                $mail->Password   = 'kscg ianq ysnk mnqs';
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
                 $mail->CharSet    = 'UTF-8';
@@ -93,10 +93,10 @@ try {
                 $logo_url    = $site_root . 'css/assets/logo.png';
                 $admin_url   = $site_root . 'admin/dashboard.php?page=messages';
 
-                $mail->setFrom('keithdaniellereyes@gmail.com', 'NAM Builders Website');
-                $mail->addAddress('keithdaniellereyes@gmail.com', 'NAM Builders Admin');
+                $mail->setFrom('nambuildersandsupplycorpweb@gmail.com', 'NAM Builders and Supply Corp. Website');
+                $mail->addAddress('amolinyawe0621@gmail.com', 'NAM Builders Admin');
                 $mail->isHTML(true);
-                $mail->Subject = 'New Inquiry: ' . $full_name . ' — NAM Builders';
+                $mail->Subject = 'New Inquiry: ' . $full_name . ' — NAM Builders and Supply Corp.';
 
                 // ── Optional rows ──
                 $phone_row = $phone ? '
@@ -222,7 +222,7 @@ try {
           NAM Builders and Supply Corp.
         </p>
         <p style="margin:0;font-size:11px;color:#CBD5E1;">
-          RNA Building Brgy. Santiago Malvar, Batangas &nbsp;&bull;&nbsp; nam.nswt@myahoo.com
+          Main: RNA Building, Brgy. Santiago, Malvar, Batangas 4233 &nbsp;&bull;&nbsp; Satellite: Yatco Subdivision, Brgy. 4, Tanauan City, Batangas &nbsp;&bull;&nbsp; nam.nswt@myahoo.com
         </p>
         <p style="margin:8px 0 0;font-size:11px;color:#CBD5E1;">
           &copy; ' . date('Y') . ' NAM Builders and Supply Corp. This is an automated notification.

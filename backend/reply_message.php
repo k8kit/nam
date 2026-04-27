@@ -71,13 +71,13 @@ try {
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'keithdaniellereyes@gmail.com';
-    $mail->Password   = 'rgxf fubs yjot dmgs';
+    $mail->Username   = 'nambuildersandsupplycorpweb@gmail.com';
+    $mail->Password   = 'kscg ianq ysnk mnqs';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     $mail->CharSet    = 'UTF-8';
 
-    $mail->setFrom('keithdaniellereyes@gmail.com', 'NAM Builders and Supply Corp.');
+    $mail->setFrom('nambuildersandsupplycorpweb@gmail.com', 'NAM Builders and Supply Corp.');
     $mail->addAddress($to_email, $to_name);
     $mail->isHTML(true);
     $mail->Subject = 'Re: Your Inquiry — NAM Builders and Supply Corp.';
@@ -181,7 +181,8 @@ try {
             <td style="vertical-align:top;">
               <p style="margin:0 0 3px;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#94A3B8;">Address</p>
               <p style="margin:0;font-size:12px;color:#475569;line-height:1.6;">
-                RNA Building Brgy.<br>Santiago Malvar, Batangas
+                <strong>Main:</strong> RNA Building, Brgy. Santiago,<br>Malvar, Batangas 4233<br>
+                <strong>Satellite:</strong> Yatco Subdivision, Brgy. 4,<br>Tanauan City, Batangas
               </p>
             </td>
           </tr>
